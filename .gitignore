@@ -41,3 +41,10 @@ example
 # generated native folders
 /ios
 /android
+
+# IDE
+.idea/
+
+# mockups and design images
+/mockup/
+/mkup1.png

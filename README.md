@@ -1,56 +1,54 @@
-# Welcome to your Expo app 👋
+# ViaClara
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App ciudadana para reportar y seguir incidencias municipales. Prototipo (demo) para
+el piloto de **Almuñécar**.
 
-## Get started
+> Lo ves, lo avisas, lo sigues.
 
-1. Install dependencies
+📄 Documento completo de análisis y especificación del proyecto (objetivos, actores,
+requisitos funcionales/no funcionales, casos de uso, modelo de datos, reglas de
+negocio, roadmap e ideas nuevas): **[DOCUMENTO_VIACLARA.md](./DOCUMENTO_VIACLARA.md)**.
 
+## Cómo arrancarlo en Expo Go
+
+1. Instala **Expo Go** en tu móvil (App Store / Google Play).
+2. En el ordenador, dentro de esta carpeta:
    ```bash
-   npm install
+   npm install      # solo la primera vez
+   npm start        # arranca el servidor de Expo
    ```
+3. Escanea el **QR** que aparece en el terminal con la cámara (iOS) o desde la
+   app Expo Go (Android). El móvil y el ordenador deben estar en la **misma red wifi**.
 
-2. Start the app
+## Qué incluye la demo
 
-   ```bash
-   npx expo start
-   ```
+- **Inicio**: lista y mapa de avisos del municipio, con filtros por categoría.
+- **Reportar**: flujo guiado en 4 pasos (foto → ubicación → categoría → detalle).
+- **Detalle**: barra de *workflow* visual (Registrada → Abierta → En curso → Resuelta,
+  más la rama Declinada), me gusta, seguir, compartir, revivir y comentarios.
+- **Mis avisos**: pestañas "Mías" / "Siguiendo".
+- **Perfil**: registro escalonado (solo se pide cuenta para acciones sociales).
 
-In the output, you'll find options to open the app in a
+Diseño pensado para público 40+: tipografía grande, alto contraste, iconos con texto.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Notas técnicas
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Stack**: React Native + Expo (SDK 54), expo-router. Backend previsto: AWS Lambda
+  (Python) + DynamoDB.
+- Los datos son **mock en memoria** (`src/data/`); no hay backend todavía.
+- La cámara, el mapa y las fotos están **simulados** para que funcione en Expo Go sin
+  configuración nativa.
+- ⚠️ **Notificaciones push**: requieren un *development build* de EAS (no funcionan en
+  Expo Go en Android desde el SDK 53). Es el siguiente paso para el piloto real.
 
-## Get a fresh project
+## Estructura
 
-When you're ready, run:
-
-```bash
-npm run reset-project
 ```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+src/
+  app/                 rutas (expo-router)
+    (tabs)/            Inicio · Mis avisos · Reportar · Perfil
+    incidencia/[id]    detalle de una incidencia
+  components/          tarjetas, workflow, cabecera, etc.
+  data/                datos mock + store en memoria
+  theme/               colores, tipografía, estados, categorías
+```
