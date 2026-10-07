@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { STATUS_CONFIG, IncidentStatus, Font, FontFamily, Radius } from '@/theme/tokens';
+import { useStatusLabel } from '@/i18n/labels';
+import { Font, FontFamily, IncidentStatus, Radius, STATUS_CONFIG } from '@/theme/tokens';
 
 export function StatusBadge({ status, size = 'md' }: { status: IncidentStatus; size?: 'sm' | 'md' }) {
+  const statusLabel = useStatusLabel();
   const s = STATUS_CONFIG[status];
   const small = size === 'sm';
   return (
@@ -14,7 +16,7 @@ export function StatusBadge({ status, size = 'md' }: { status: IncidentStatus; s
         small && { paddingVertical: 3, paddingHorizontal: 8 },
       ]}>
       <Ionicons name={s.icon as any} size={small ? 13 : 15} color="#fff" />
-      <Text style={[styles.text, { fontSize: small ? 12 : Font.small }]}>{s.label}</Text>
+      <Text style={[styles.text, { fontSize: small ? 12 : Font.small }]}>{statusLabel(status)}</Text>
     </View>
   );
 }

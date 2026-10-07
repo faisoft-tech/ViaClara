@@ -1,33 +1,37 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, Share, StyleSheet, Switch, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SignupSheet } from '@/components/SignupSheet';
-import { MUNICIPALITIES, Tier, TIER_LABELS } from '@/data/incidents';
+import { MUNICIPALITIES, NEXT_TIER, TIER_BADGE_COLORS, TIER_THRESHOLDS } from '@/data/incidents';
 import { useStore } from '@/data/store';
+import { useTierLabel } from '@/i18n/labels';
 import { useT } from '@/i18n/useT';
 import { Colors, Font, FontFamily, Radius, Shadow, Spacing } from '@/theme/tokens';
+import { initials } from '@/utils/avatar';
+import { maskPhone } from '@/utils/phone';
 
-// RF-018: tier badge background/text color, coherent with the Profile mockup.
-const TIER_BADGE_COLORS: Record<Tier, { bg: string; fg: string }> = {
-  bronze: { bg: '#F5EBE3', fg: '#8A5A34' },
-  silver: { bg: '#EEF1F4', fg: '#5B6672' },
-  gold: { bg: '#FFF4E0', fg: '#B8790E' },
-};
-
-// RF-018: point thresholds per tier (consistent with getTier in data/incidents.ts).
-const TIER_THRESHOLDS = { bronze: 0, silver: 50, gold: 200 } as const;
-const NEXT_TIER: Partial<Record<Tier, Tier>> = { bronze: 'silver', silver: 'gold' };
+// Settings §6: deterministic referral code derived from the user's own public
+// name — real and functional, but crediting the inviter with points requires a
+// real backend to observe that someone actually signed up through the link
+// (this single-device demo has no concept of a second, independent account).
+function referralCode(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  return hash.toString(36).slice(0, 6).toUpperCase() || 'VIACLARA';
+}
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const t = useT();
+  const tierLabel = useTierLabel();
   const {
     isRegistered,
     publicName,
+    phone,
     login,
     logout,
     points,
@@ -40,7 +44,6 @@ export default function ProfileScreen() {
     unreadNotificationsCount,
   } = useStore();
   const [sheet, setSheet] = useState(false);
-  const [blurFaces, setBlurFaces] = useState(true);
   const [municipalityPicker, setMunicipalityPicker] = useState(false);
   const [languagePicker, setLanguagePicker] = useState(false);
 
@@ -53,9 +56,9 @@ export default function ProfileScreen() {
   const pointsToNext = nextTier ? Math.max(0, TIER_THRESHOLDS[nextTier] - points) : 0;
 
   function inviteFriends() {
-    Share.share({
-      message: 'Únete a ViaClara y ayuda a mejorar tu municipio: reporta incidencias en tu calle.',
-    });
+    const code = referralCode(publicName ?? 'ViaClara');
+    const link = `https://viaclara.app/descargar?ref=${code}`;
+    Share.share({ message: t('inviteShareMessage').replace('{link}', link) });
   }
 
   return (
@@ -64,21 +67,15 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scrollFull} showsVerticalScrollIndicator={false}>
         {isRegistered ? (
           <View style={[styles.profileHero, { paddingTop: insets.top + Spacing.xl }]}>
-            {/* Settings §7: notification bell, with an unread indicator */}
-            <Pressable style={styles.bellBtn} onPress={() => router.push('/notifications')} hitSlop={8}>
-              <Ionicons name="notifications-outline" size={22} color="#fff" />
-              {unreadNotificationsCount > 0 && <View style={styles.bellBadge} />}
-            </Pressable>
             <View style={styles.avatarLarge}>
-              <Ionicons name="person" size={32} color="#fff" />
+              <Text style={styles.avatarInitials}>{initials(publicName ?? '')}</Text>
             </View>
-            <Text style={styles.profileHeroName}>
-              {publicName ?? `Vecino/a de ${activeMunicipality ? activeMunicipality.name : 'tu municipio'}`}
-            </Text>
+            <Text style={styles.profileHeroName}>{publicName}</Text>
+            {phone && <Text style={styles.profileHeroPhone}>+34 {maskPhone(phone)}</Text>}
           </View>
         ) : (
           <View style={[styles.plainHero, { paddingTop: insets.top + Spacing.sm }]}>
-            <Text style={styles.plainHeroTitle}>Perfil</Text>
+            <Text style={styles.plainHeroTitle}>{t('profileAnonymousTitle')}</Text>
           </View>
         )}
 
@@ -86,19 +83,17 @@ export default function ProfileScreen() {
           {isRegistered ? (
             // Municipality: tenant selector (RF-014), overlapping the gradient header like the mockup
             <Pressable style={[styles.municipalityCard, { marginTop: 0 }]} onPress={() => setMunicipalityPicker(true)}>
-              <View style={styles.rowIconBadge}>
-                <Ionicons name="location" size={18} color={Colors.primary} />
-              </View>
+              <Ionicons name="location" size={20} color={Colors.primary} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.municipalityLabel}>Tu municipio</Text>
+                <Text style={styles.municipalityLabel}>{t('yourMunicipality')}</Text>
                 <Text style={styles.municipalityValue}>
                   {activeMunicipality
                     ? `${activeMunicipality.name}, ${activeMunicipality.province}`
-                    : 'Selecciona un municipio'}
+                    : t('selectMunicipality')}
                 </Text>
               </View>
               <View style={styles.municipalityChange}>
-                <Text style={styles.changeText}>Cambiar</Text>
+                <Text style={styles.changeText}>{t('changeCta')}</Text>
                 <Ionicons name="chevron-down" size={16} color={Colors.primary} />
               </View>
             </Pressable>
@@ -108,30 +103,26 @@ export default function ProfileScreen() {
                 <View style={styles.avatarGhost}>
                   <Ionicons name="person-add" size={30} color={Colors.primary} />
                 </View>
-                <Text style={styles.inviteTitle}>Únete a ViaClara</Text>
-                <Text style={styles.inviteBody}>
-                  Crea una cuenta para recibir avisos de tus incidencias y participar en tu municipio.
-                </Text>
+                <Text style={styles.inviteTitle}>{t('joinTitle')}</Text>
+                <Text style={styles.inviteBody}>{t('joinBody')}</Text>
                 <Pressable style={styles.inviteBtn} onPress={() => setSheet(true)}>
-                  <Text style={styles.inviteBtnText}>Crear cuenta gratis</Text>
+                  <Text style={styles.inviteBtnText}>{t('createFreeAccount')}</Text>
                 </Pressable>
               </View>
 
               {/* Municipality: tenant selector (RF-014), available without an account */}
               <Pressable style={styles.municipalityCard} onPress={() => setMunicipalityPicker(true)}>
-                <View style={styles.rowIconBadge}>
-                  <Ionicons name="location" size={18} color={Colors.primary} />
-                </View>
+                <Ionicons name="location" size={20} color={Colors.primary} />
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.municipalityLabel}>Tu municipio</Text>
+                  <Text style={styles.municipalityLabel}>{t('yourMunicipality')}</Text>
                   <Text style={styles.municipalityValue}>
                     {activeMunicipality
                       ? `${activeMunicipality.name}, ${activeMunicipality.province}`
-                      : 'Selecciona un municipio'}
+                      : t('selectMunicipality')}
                   </Text>
                 </View>
                 <View style={styles.municipalityChange}>
-                  <Text style={styles.changeText}>Cambiar</Text>
+                  <Text style={styles.changeText}>{t('changeCta')}</Text>
                   <Ionicons name="chevron-down" size={16} color={Colors.primary} />
                 </View>
               </Pressable>
@@ -140,17 +131,18 @@ export default function ProfileScreen() {
 
           {isRegistered && (
             <>
-              {/* RF-016/RF-018: points are the star metric, with progress toward the next tier */}
-              <View style={styles.pointsCard}>
+              {/* RF-016/RF-018: points are the star metric, with progress toward the
+                  next tier — plain layout, no card, matching the mockup. */}
+              <View style={styles.pointsSection}>
                 <View style={styles.pointsHead}>
                   <View>
-                    <Text style={styles.pointsLabel}>Puntos acumulados</Text>
+                    <Text style={styles.pointsLabel}>{t('pointsAccumulated')}</Text>
                     <Text style={styles.pointsNum}>{points.toLocaleString('es-ES')}</Text>
                   </View>
                   <View style={[styles.tierBadge, { backgroundColor: TIER_BADGE_COLORS[tier].bg }]}>
-                    <Ionicons name="ribbon" size={14} color={TIER_BADGE_COLORS[tier].fg} />
+                    <Ionicons name="star-outline" size={14} color={TIER_BADGE_COLORS[tier].fg} />
                     <Text style={[styles.tierBadgeText, { color: TIER_BADGE_COLORS[tier].fg }]}>
-                      Nivel {TIER_LABELS[tier]}
+                      {t('tierLevel')} {tierLabel(tier)}
                     </Text>
                   </View>
                 </View>
@@ -159,59 +151,55 @@ export default function ProfileScreen() {
                 </View>
                 <Text style={styles.progressHint}>
                   {nextTier
-                    ? `${pointsToNext} puntos más para nivel ${TIER_LABELS[nextTier]}`
-                    : 'Nivel máximo alcanzado'}
+                    ? t('pointsToNext').replace('{n}', String(pointsToNext)).replace('{tier}', tierLabel(nextTier))
+                    : t('maxTierReached')}
                 </Text>
               </View>
 
-              {/* Settings §6: general user stats (reports created / resolved / likes received) */}
+              {/* Settings §6: general user stats — plain columns, no cards */}
               <View style={styles.statsRow}>
-                <StatCard num={stats.reportsCreated} label="Avisos" />
-                <StatCard num={stats.reportsResolved} label="Resueltos" />
-                <StatCard num={stats.likesReceived} label="Me gusta" />
+                <StatCol num={stats.reportsCreated} label={t('statReports')} />
+                <StatCol num={stats.reportsResolved} label={t('statResolved')} />
+                <StatCol num={stats.likesReceived} label={t('statLikes')} />
               </View>
             </>
           )}
 
-          {/* Settings */}
-          <Text style={styles.sectionTitle}>Ajustes</Text>
-          <View style={styles.card}>
+          {/* Settings: plain list, no section title or card wrapper, matching the mockup */}
+          <View style={styles.menu}>
             {isRegistered && (
               <>
-                {/* Settings §6: the notifications entry becomes exclusively preferences,
-                    on its own screen */}
-                <Pressable onPress={() => router.push('/settings/notifications')}>
-                  <Row icon="notifications" label={t('settingsNotifications')} right={<Chevron />} />
+                {/* Settings §7: opens the notification panel; preferences are one tap
+                    away from there via the header's settings icon. */}
+                <Pressable onPress={() => router.push('/notifications')}>
+                  <Row
+                    icon="notifications-outline"
+                    label={t('settingsNotifications')}
+                    badge={unreadNotificationsCount > 0}
+                    right={<Chevron />}
+                  />
                 </Pressable>
                 <Divider />
               </>
             )}
-            <Row
-              icon="eye-off"
-              label={t('settingsBlur')}
-              right={
-                <Switch value={blurFaces} onValueChange={setBlurFaces} trackColor={{ true: Colors.primary }} />
-              }
-            />
+            <Pressable onPress={() => router.push('/privacy')}>
+              <Row icon="shield-checkmark-outline" label={t('settingsPrivacy')} right={<Chevron />} />
+            </Pressable>
+            <Divider />
+            <Pressable onPress={() => router.push('/help')}>
+              <Row icon="help-circle-outline" label={t('settingsHelp')} right={<Chevron />} />
+            </Pressable>
             <Divider />
             <Pressable onPress={() => setLanguagePicker(true)}>
               <Row
-                icon="language"
+                icon="language-outline"
                 label={`${t('settingsLanguage')}: ${language === 'es' ? 'Español' : 'English'}`}
                 right={<Chevron />}
               />
             </Pressable>
             <Divider />
-            <Pressable onPress={() => router.push('/privacy')}>
-              <Row icon="shield-checkmark" label={t('settingsPrivacy')} right={<Chevron />} />
-            </Pressable>
-            <Divider />
-            <Pressable onPress={() => router.push('/help')}>
-              <Row icon="help-circle" label={t('settingsHelp')} right={<Chevron />} />
-            </Pressable>
-            <Divider />
             <Pressable onPress={inviteFriends}>
-              <Row icon="person-add" label={t('settingsInvite')} right={<Chevron />} />
+              <Row icon="person-add-outline" label={t('settingsInvite')} right={<Chevron />} />
             </Pressable>
           </View>
 
@@ -221,16 +209,17 @@ export default function ProfileScreen() {
             </Pressable>
           )}
 
-          <Text style={styles.version}>ViaClara · versión 0.1 (demo)</Text>
+          <Text style={styles.version}>{t('appVersion')}</Text>
         </View>
       </ScrollView>
 
       <SignupSheet
         visible={sheet}
-        reason="Crea tu cuenta de ViaClara."
+        reason={t('reasonCreateAccount')}
+        knownName={publicName}
         onClose={() => setSheet(false)}
-        onRegister={(name) => {
-          login(name);
+        onRegister={(name, phoneNumber) => {
+          login(name, phoneNumber);
           setSheet(false);
         }}
       />
@@ -243,7 +232,7 @@ export default function ProfileScreen() {
         <Pressable style={styles.backdrop} onPress={() => setMunicipalityPicker(false)}>
           <Pressable style={styles.pickerSheet} onPress={() => {}}>
             <View style={styles.handle} />
-            <Text style={styles.pickerTitle}>Elige tu municipio</Text>
+            <Text style={styles.pickerTitle}>{t('chooseMunicipality')}</Text>
             {MUNICIPALITIES.map((m) => (
               <Pressable
                 key={m.id}
@@ -294,20 +283,31 @@ export default function ProfileScreen() {
   );
 }
 
-function StatCard({ num, label }: { num: number; label: string }) {
+function StatCol({ num, label }: { num: number; label: string }) {
   return (
-    <View style={styles.statCard}>
+    <View style={styles.statCol}>
       <Text style={styles.statNum}>{num}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
 }
 
-function Row({ icon, label, right }: { icon: string; label: string; right?: React.ReactNode }) {
+function Row({
+  icon,
+  label,
+  right,
+  badge,
+}: {
+  icon: string;
+  label: string;
+  right?: React.ReactNode;
+  badge?: boolean;
+}) {
   return (
     <View style={styles.row}>
-      <View style={styles.rowIconBadge}>
-        <Ionicons name={icon as any} size={18} color={Colors.primary} />
+      <View>
+        <Ionicons name={icon as any} size={22} color={Colors.text} />
+        {badge && <View style={styles.rowBadgeDot} />}
       </View>
       <Text style={styles.rowLabel}>{label}</Text>
       <View style={{ marginLeft: 'auto' }}>{right}</View>
@@ -329,30 +329,25 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: Radius.xl,
     alignItems: 'center',
   },
-  bellBtn: { position: 'absolute', top: 44, right: Spacing.lg },
-  bellBadge: {
-    position: 'absolute',
-    top: -1,
-    right: -1,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.danger,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-  },
   avatarLarge: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     borderWidth: 3,
     borderColor: '#fff',
     backgroundColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: Spacing.md,
   },
-  profileHeroName: { fontSize: 19, fontFamily: FontFamily.semibold, color: '#fff' },
+  avatarInitials: { color: '#fff', fontSize: 32, fontFamily: FontFamily.bold },
+  profileHeroName: { fontSize: 22, fontFamily: FontFamily.bold, color: '#fff' },
+  profileHeroPhone: {
+    fontSize: Font.small,
+    fontFamily: FontFamily.regular,
+    color: 'rgba(255,255,255,0.75)',
+    marginTop: 4,
+  },
   // Simple header for the anonymous state (no avatar, no user to show)
   plainHero: {
     backgroundColor: Colors.primary,
@@ -378,26 +373,20 @@ const styles = StyleSheet.create({
   municipalityLabel: { fontSize: Font.small, fontFamily: FontFamily.regular, color: Colors.textMuted },
   municipalityValue: { fontSize: Font.body, fontFamily: FontFamily.semibold, color: Colors.text, marginTop: 1 },
   municipalityChange: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  // Points: plain section directly on the background, no card (matches mockup)
+  pointsSection: { paddingTop: Spacing.xl, paddingBottom: Spacing.md },
+  pointsHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: Spacing.md },
+  pointsLabel: { fontSize: Font.body, fontFamily: FontFamily.regular, color: Colors.textMuted },
+  pointsNum: { fontSize: 40, fontFamily: FontFamily.extrabold, color: Colors.text },
   tierBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: Spacing.md,
     borderRadius: Radius.pill,
-    marginTop: Spacing.xs,
   },
-  tierBadgeText: { fontFamily: FontFamily.labelBold, fontSize: Font.small },
-  pointsCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
-    marginTop: Spacing.md,
-    ...Shadow.card,
-  },
-  pointsHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: Spacing.md },
-  pointsLabel: { fontSize: Font.small, fontFamily: FontFamily.regular, color: Colors.textMuted },
-  pointsNum: { fontSize: Font.hero, fontFamily: FontFamily.extrabold, color: Colors.text },
+  tierBadgeText: { fontFamily: FontFamily.semibold, fontSize: Font.small },
   progressTrack: {
     height: 8,
     borderRadius: 4,
@@ -407,24 +396,11 @@ const styles = StyleSheet.create({
   },
   progressFill: { height: '100%', borderRadius: 4, backgroundColor: Colors.primary },
   progressHint: { fontSize: Font.small, fontFamily: FontFamily.regular, color: Colors.textMuted },
-  statsRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md },
-  statCard: {
-    flex: 1,
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.lg,
-    paddingVertical: Spacing.md,
-    alignItems: 'center',
-    ...Shadow.card,
-  },
-  statNum: { fontSize: Font.title, fontFamily: FontFamily.extrabold, color: Colors.text },
-  statLabel: {
-    fontSize: Font.small - 2,
-    color: Colors.textMuted,
-    fontFamily: FontFamily.labelSemibold,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginTop: 2,
-  },
+  // Stats: plain columns, no cards (matches mockup)
+  statsRow: { flexDirection: 'row', paddingVertical: Spacing.xl },
+  statCol: { flex: 1, alignItems: 'center' },
+  statNum: { fontSize: 28, fontFamily: FontFamily.extrabold, color: Colors.text },
+  statLabel: { fontSize: Font.small, color: Colors.textMuted, fontFamily: FontFamily.regular, marginTop: 4 },
   inviteCard: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.lg,
@@ -460,25 +436,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   inviteBtnText: { color: '#fff', fontFamily: FontFamily.bold, fontSize: Font.bodyLg },
-  sectionTitle: {
-    fontSize: Font.small,
-    fontFamily: FontFamily.labelBold,
-    color: Colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginTop: Spacing.xl,
-    marginBottom: Spacing.sm,
-    marginLeft: Spacing.xs,
-  },
-  card: { backgroundColor: Colors.surface, borderRadius: Radius.lg, paddingHorizontal: Spacing.lg, ...Shadow.card },
-  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: Spacing.md, minHeight: 56 },
-  rowIconBadge: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: Colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
+  // Settings menu: plain list, dividers only (matches mockup)
+  menu: { paddingTop: Spacing.sm },
+  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: Spacing.lg, minHeight: 56 },
+  rowBadgeDot: {
+    position: 'absolute',
+    top: -1,
+    right: -1,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.danger,
   },
   rowLabel: { fontSize: Font.body, color: Colors.text, fontFamily: FontFamily.medium, flexShrink: 1 },
   divider: { height: 1, backgroundColor: Colors.border },

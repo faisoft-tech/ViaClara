@@ -48,3 +48,23 @@ example
 # mockups and design images
 /mockup/
 /mkup1.png
+# zipped copy of figma-export/ (the folder is the versioned one)
+/figma-export.zip
+
+# Terraform
+# (infra/.terraform.lock.hcl SÍ se commitea — fija las versiones exactas de
+# los providers para reproducibilidad, ver la doc de Terraform).
+infra/.terraform/
+infra/.build/
+infra/*.tfstate
+infra/*.tfstate.*
+infra/*.tfplan
+infra/terraform.tfvars
+infra/.terraform.tfstate.lock.info
+
+# Python (apps/api)
+apps/api/.venv/
+apps/api/**/__pycache__/
+apps/api/.pytest_cache/
+apps/api/.ruff_cache/
+*.env

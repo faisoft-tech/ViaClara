@@ -1,22 +1,26 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
+import { Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { IncidentCard } from '@/components/IncidentCard';
 import { IncidentsMap } from '@/components/IncidentsMap';
 import { Incident, MUNICIPALITIES } from '@/data/incidents';
 import { useStore } from '@/data/store';
-import { CATEGORY_CONFIG, IncidentCategory, Colors, Font, FontFamily, Radius, Shadow, Spacing } from '@/theme/tokens';
+import { useCategoryLabel, useStatusLabel } from '@/i18n/labels';
+import { useT } from '@/i18n/useT';
+import { CATEGORY_CONFIG, IncidentCategory, Colors, Font, FontFamily, IncidentStatus, Radius, Shadow, Spacing, STATUS_CONFIG } from '@/theme/tokens';
 
-type CategoryFilter = 'all' | IncidentCategory;
-type SortOrder = 'priority' | 'recent' | 'oldest';
-type QuickFilter = 'all' | 'nearby' | 'watching';
+// Settings §2: only open/in-progress reports ever show on the main page —
+// resolved, closed, declined or rejected reports never appear here.
+const HOME_STATUSES: IncidentStatus[] = ['open', 'in_progress'];
 
-// Approximate distance (not geodesic, good enough for sorting points within a municipality).
-function distance(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
-  return Math.hypot(a.lat - b.lat, a.lng - b.lng);
+function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
+  const next = new Set(set);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  return next;
 }
 
 // Real distance (Haversine formula) for display on the card, e.g. "320 m" / "1.2 km".
@@ -38,43 +42,50 @@ function formatDistance(meters: number) {
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { incidents, municipalityId, setMunicipality, priorityScoreOf, unreadNotificationsCount } = useStore();
-  // Settings §2: the map view replaces the old "Near you" section as the
-  // default content of Home; the list is still available from the selector.
+  const t = useT();
+  const categoryLabel = useCategoryLabel();
+  const statusLabel = useStatusLabel();
+  const {
+    incidents,
+    municipalityId,
+    setMunicipality,
+    priorityScoreOf,
+    unreadNotificationsCount,
+    refresh,
+    loadingIncidents,
+  } = useStore();
+
+  useFocusEffect(
+    useCallback(() => {
+      void refresh();
+    }, [refresh]),
+  );
   const [view, setView] = useState<'list' | 'map'>('map');
-  const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('priority');
+  const [statusFilter, setStatusFilter] = useState<Set<IncidentStatus>>(new Set());
+  const [categoryFilter, setCategoryFilter] = useState<Set<IncidentCategory>>(new Set());
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [municipalityPicker, setMunicipalityPicker] = useState(false);
 
   const municipality = MUNICIPALITIES.find((m) => m.id === municipalityId) ?? MUNICIPALITIES[0];
 
+  // Settings §2: only Estado + Categoría filters remain, both multi-select; the
+  // list is always sorted by priority (highest first), no user-facing sort toggle.
   const data = useMemo(() => {
-    let list = incidents
+    const list = incidents
       .filter((i) => i.municipalityId === municipalityId)
-      .filter((i) => categoryFilter === 'all' || i.category === categoryFilter)
-      .filter((i) => quickFilter !== 'watching' || i.watching);
-
-    if (quickFilter === 'nearby') {
-      list = [...list].sort(
-        (a, b) => distance(a, municipality.center) - distance(b, municipality.center),
-      );
-    } else if (sortOrder === 'priority') {
-      list = [...list].sort((a, b) => priorityScoreOf(b) - priorityScoreOf(a));
-    } else if (sortOrder === 'recent') {
-      list = [...list].sort((a, b) => b.createdAt - a.createdAt);
-    } else if (sortOrder === 'oldest') {
-      list = [...list].sort((a, b) => a.createdAt - b.createdAt);
-    }
-    return list;
-  }, [incidents, municipalityId, categoryFilter, quickFilter, sortOrder, municipality, priorityScoreOf]);
+      .filter((i) => HOME_STATUSES.includes(i.status))
+      .filter((i) => statusFilter.size === 0 || statusFilter.has(i.status))
+      .filter((i) => categoryFilter.size === 0 || categoryFilter.has(i.category));
+    return [...list].sort((a, b) => priorityScoreOf(b) - priorityScoreOf(a));
+  }, [incidents, municipalityId, statusFilter, categoryFilter, priorityScoreOf]);
 
   return (
     <View style={styles.container}>
       <View style={[styles.hero, { paddingTop: insets.top + Spacing.sm }]}>
         <View style={styles.heroRow}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.heroGreeting}>Hola</Text>
+            <Text style={styles.heroGreeting}>{t('greetingHello')}</Text>
             {/* Settings §2: the same access point lets you change the selected municipality */}
             <Pressable style={styles.heroLocRow} onPress={() => setMunicipalityPicker(true)} hitSlop={6}>
               <Ionicons name="location" size={16} color="#fff" />
@@ -92,60 +103,30 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.chipsRow}
-        contentContainerStyle={styles.chipsContent}>
-        <Chip label="Todos" active={quickFilter === 'all'} onPress={() => setQuickFilter('all')} />
-        <Chip label="Cerca de mí" active={quickFilter === 'nearby'} onPress={() => setQuickFilter('nearby')} />
-        <Chip label="Siguiendo" active={quickFilter === 'watching'} onPress={() => setQuickFilter('watching')} />
-      </ScrollView>
-
       <View style={styles.segment}>
-        <SegBtn label="Lista" icon="list" active={view === 'list'} onPress={() => setView('list')} />
-        <SegBtn label="Mapa" icon="map" active={view === 'map'} onPress={() => setView('map')} />
+        <SegBtn label={t('viewList')} icon="list" active={view === 'list'} onPress={() => setView('list')} />
+        <SegBtn label={t('viewMap')} icon="map" active={view === 'map'} onPress={() => setView('map')} />
       </View>
 
-      {/* Settings §2: basic sort filters — Priority / Most recent / Oldest */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.chipsRow}
-        contentContainerStyle={styles.chipsContent}>
-        <Chip
-          label="Prioridad"
-          icon="flame"
-          active={sortOrder === 'priority'}
-          onPress={() => setSortOrder('priority')}
+      {/* Settings §2: only two filters remain — Estado and Categoría, both multi-select dropdowns */}
+      <View style={styles.filtersRow}>
+        <FilterPill
+          label={t('filterStatus')}
+          count={statusFilter.size}
+          onPress={() => setStatusModalOpen(true)}
         />
-        <Chip
-          label="Más recientes"
-          icon="time"
-          active={sortOrder === 'recent'}
-          onPress={() => setSortOrder('recent')}
+        <FilterPill
+          label={t('filterCategory')}
+          count={categoryFilter.size}
+          onPress={() => setCategoryModalOpen(true)}
         />
-        <Chip
-          label="Más antiguas"
-          icon="hourglass"
-          active={sortOrder === 'oldest'}
-          onPress={() => setSortOrder('oldest')}
-        />
-        <View style={styles.chipsDivider} />
-        <Chip label="Todas" active={categoryFilter === 'all'} onPress={() => setCategoryFilter('all')} />
-        {(Object.keys(CATEGORY_CONFIG) as IncidentCategory[]).map((c) => (
-          <Chip
-            key={c}
-            label={CATEGORY_CONFIG[c].label}
-            icon={CATEGORY_CONFIG[c].icon}
-            color={CATEGORY_CONFIG[c].color}
-            active={categoryFilter === c}
-            onPress={() => setCategoryFilter(c)}
-          />
-        ))}
-      </ScrollView>
+      </View>
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={loadingIncidents} onRefresh={() => void refresh()} />}
+      >
         {view === 'map' && <IncidentsMap data={data} />}
         {view === 'list' &&
           data.map((inc: Incident) => (
@@ -156,7 +137,7 @@ export default function HomeScreen() {
               />
             </View>
           ))}
-        {view === 'list' && data.length === 0 && <Text style={styles.empty}>No hay avisos que coincidan.</Text>}
+        {view === 'list' && data.length === 0 && <Text style={styles.empty}>{t('emptyNoMatches')}</Text>}
       </ScrollView>
 
       <Modal
@@ -167,7 +148,7 @@ export default function HomeScreen() {
         <Pressable style={styles.backdrop} onPress={() => setMunicipalityPicker(false)}>
           <Pressable style={styles.pickerSheet} onPress={() => {}}>
             <View style={styles.handle} />
-            <Text style={styles.pickerTitle}>Elige tu municipio</Text>
+            <Text style={styles.pickerTitle}>{t('chooseMunicipality')}</Text>
             {MUNICIPALITIES.map((m) => (
               <Pressable
                 key={m.id}
@@ -183,6 +164,39 @@ export default function HomeScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      <MultiSelectModal
+        visible={statusModalOpen}
+        title={t('filterStatus')}
+        options={HOME_STATUSES.map((s) => ({
+          value: s,
+          label: statusLabel(s),
+          icon: STATUS_CONFIG[s].icon,
+          color: STATUS_CONFIG[s].color,
+        }))}
+        selected={statusFilter}
+        onToggle={(v) => setStatusFilter((prev) => toggleInSet(prev, v))}
+        onClear={() => setStatusFilter(new Set())}
+        onClose={() => setStatusModalOpen(false)}
+        applyLabel={t('filterApply')}
+        clearLabel={t('filterClear')}
+      />
+      <MultiSelectModal
+        visible={categoryModalOpen}
+        title={t('filterCategory')}
+        options={(Object.keys(CATEGORY_CONFIG) as IncidentCategory[]).map((c) => ({
+          value: c,
+          label: categoryLabel(c),
+          icon: CATEGORY_CONFIG[c].icon,
+          color: CATEGORY_CONFIG[c].color,
+        }))}
+        selected={categoryFilter}
+        onToggle={(v) => setCategoryFilter((prev) => toggleInSet(prev, v))}
+        onClear={() => setCategoryFilter(new Set())}
+        onClose={() => setCategoryModalOpen(false)}
+        applyLabel={t('filterApply')}
+        clearLabel={t('filterClear')}
+      />
     </View>
   );
 }
@@ -206,26 +220,73 @@ function SegBtn({
   );
 }
 
-function Chip({
-  label,
-  icon,
-  color,
-  active,
-  onPress,
+function FilterPill({ label, count, onPress }: { label: string; count: number; onPress: () => void }) {
+  const active = count > 0;
+  return (
+    <Pressable style={[styles.filterPill, active && styles.filterPillActive]} onPress={onPress}>
+      <Text style={[styles.filterPillText, active && styles.filterPillTextActive]}>
+        {label}
+        {active ? ` (${count})` : ''}
+      </Text>
+      <Ionicons name="chevron-down" size={14} color={active ? '#fff' : Colors.textMuted} />
+    </Pressable>
+  );
+}
+
+function MultiSelectModal<T extends string>({
+  visible,
+  title,
+  options,
+  selected,
+  onToggle,
+  onClear,
+  onClose,
+  applyLabel,
+  clearLabel,
 }: {
-  label: string;
-  icon?: string;
-  color?: string;
-  active: boolean;
-  onPress: () => void;
+  visible: boolean;
+  title: string;
+  options: { value: T; label: string; icon?: string; color?: string }[];
+  selected: Set<T>;
+  onToggle: (value: T) => void;
+  onClear: () => void;
+  onClose: () => void;
+  applyLabel: string;
+  clearLabel: string;
 }) {
   return (
-    <Pressable style={[styles.chip, active && styles.chipActive]} onPress={onPress}>
-      {icon && (
-        <Ionicons name={icon as any} size={15} color={active ? '#fff' : color ?? Colors.textMuted} />
-      )}
-      <Text style={[styles.chipText, { color: active ? '#fff' : Colors.text }]}>{label}</Text>
-    </Pressable>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable style={styles.backdrop} onPress={onClose}>
+        <Pressable style={styles.pickerSheet} onPress={() => {}}>
+          <View style={styles.handle} />
+          <Text style={styles.pickerTitle}>{title}</Text>
+          {options.map((opt) => {
+            const checked = selected.has(opt.value);
+            return (
+              <Pressable key={opt.value} style={styles.multiRow} onPress={() => onToggle(opt.value)}>
+                <View style={styles.multiRowLeft}>
+                  {opt.icon && <Ionicons name={opt.icon as any} size={16} color={opt.color ?? Colors.textMuted} />}
+                  <Text style={styles.pickerRowLabel}>{opt.label}</Text>
+                </View>
+                <Ionicons
+                  name={checked ? 'checkbox' : 'square-outline'}
+                  size={22}
+                  color={checked ? Colors.primary : Colors.textMuted}
+                />
+              </Pressable>
+            );
+          })}
+          <View style={styles.multiActions}>
+            <Pressable style={styles.multiClearBtn} onPress={onClear}>
+              <Text style={styles.multiClearText}>{clearLabel}</Text>
+            </Pressable>
+            <Pressable style={styles.multiApplyBtn} onPress={onClose}>
+              <Text style={styles.multiApplyText}>{applyLabel}</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
   );
 }
 
@@ -285,10 +346,13 @@ const styles = StyleSheet.create({
   },
   segBtnActive: { backgroundColor: Colors.primary },
   segText: { fontFamily: FontFamily.semibold, fontSize: Font.body },
-  chipsRow: { maxHeight: 56, marginTop: Spacing.sm },
-  chipsContent: { paddingHorizontal: Spacing.lg, gap: Spacing.sm, alignItems: 'center' },
-  chipsDivider: { width: 1, height: 24, backgroundColor: Colors.border, marginHorizontal: 2 },
-  chip: {
+  filtersRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.sm,
+  },
+  filterPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -298,10 +362,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.borderStrong,
-    height: 40,
   },
-  chipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  chipText: { fontFamily: FontFamily.labelSemibold, fontSize: Font.small },
+  filterPillActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  filterPillText: { fontFamily: FontFamily.labelSemibold, fontSize: Font.small, color: Colors.text },
+  filterPillTextActive: { color: '#fff' },
   scroll: { padding: Spacing.lg, paddingBottom: 96 },
   empty: {
     textAlign: 'center',
@@ -329,4 +393,29 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
   },
   pickerRowLabel: { fontSize: Font.body, fontFamily: FontFamily.medium, color: Colors.text },
+  multiRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.sm,
+  },
+  multiRowLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  multiActions: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md },
+  multiClearBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
+    alignItems: 'center',
+  },
+  multiClearText: { fontFamily: FontFamily.semibold, fontSize: Font.body, color: Colors.text },
+  multiApplyBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+  },
+  multiApplyText: { fontFamily: FontFamily.semibold, fontSize: Font.body, color: '#fff' },
 });

@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" fill="none">
+  <defs>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0A2A33" flood-opacity="0.08"/>
+    </filter>
+    <filter id="fabShadow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#3D69FE" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- frame background -->
+  <rect width="390" height="844" fill="#FAFAFC"/>
+
+  <!-- ============ HERO (blue, rounded bottom) ============ -->
+  <g id="hero">
+    <path d="M0 0 H390 V211 a24 24 0 0 1 -24 24 H24 a24 24 0 0 1 -24 -24 Z" fill="#3D69FE"/>
+
+    <!-- status bar (white over blue) -->
+    <g id="status-bar">
+      <text x="24" y="32" font-family="Poppins" font-weight="700" font-size="15" fill="#FFFFFF">9:41</text>
+      <!-- signal -->
+      <g fill="#FFFFFF">
+        <rect x="322" y="24" width="3" height="6" rx="1"/>
+        <rect x="327" y="21" width="3" height="9" rx="1"/>
+        <rect x="332" y="18" width="3" height="12" rx="1"/>
+        <rect x="337" y="15" width="3" height="15" rx="1"/>
+      </g>
+      <!-- wifi -->
+      <g fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round">
+        <path d="M345 20 a10 10 0 0 1 14 0"/>
+        <path d="M348.5 24 a5 5 0 0 1 7 0"/>
+      </g>
+      <circle cx="352" cy="28" r="1.4" fill="#FFFFFF"/>
+      <!-- battery -->
+      <rect x="363" y="17" width="20" height="11" rx="3" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7"/>
+      <rect x="365" y="19" width="14" height="7" rx="1.5" fill="#FFFFFF"/>
+      <rect x="384" y="20" width="1.6" height="5" rx="0.8" fill="#FFFFFF" opacity="0.7"/>
+    </g>
+
+    <!-- large avatar -->
+    <g id="avatar">
+      <circle cx="195" cy="118" r="48" fill="#12B3AE" stroke="#FFFFFF" stroke-width="3"/>
+      <text x="195" y="129" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="32" fill="#FFFFFF">DH</text>
+    </g>
+    <text x="195" y="196" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="22" fill="#FFFFFF">Diego H.</text>
+    <text x="195" y="215" text-anchor="middle" font-family="Poppins" font-weight="400" font-size="12" fill="#FFFFFF" fill-opacity="0.75">+34 6·· ·· ·· 89</text>
+  </g>
+
+  <!-- ============ MUNICIPALITY CARD (overlapping hero) ============ -->
+  <g id="municipality-card">
+    <rect x="16" y="211" width="358" height="70" rx="16" fill="#FFFFFF" filter="url(#cardShadow)"/>
+    <!-- location pin -->
+    <g transform="translate(32,236)" fill="#3D69FE">
+      <path d="M10 0 C4.5 0 0 4.5 0 10 c0 7 10 16 10 16 s10 -9 10 -16 C20 4.5 15.5 0 10 0 Z"/>
+      <circle cx="10" cy="10" r="3.6" fill="#FFFFFF"/>
+    </g>
+    <text x="64" y="240" font-family="Poppins" font-weight="400" font-size="12" fill="#7D7E88">Tu municipio</text>
+    <text x="64" y="259" font-family="Poppins" font-weight="600" font-size="14" fill="#17194B">Almuñécar, Granada</text>
+    <text x="332" y="251" text-anchor="end" font-family="Poppins" font-weight="600" font-size="14" fill="#3D69FE">Cambiar</text>
+    <path d="M340 247 l5 5 l5 -5" fill="none" stroke="#3D69FE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- ============ POINTS SECTION ============ -->
+  <g id="points-section">
+    <text x="16" y="316" font-family="Epilogue" font-weight="400" font-size="14" fill="#7D7E88">Puntos acumulados</text>
+    <text x="16" y="357" font-family="Epilogue" font-weight="800" font-size="40" fill="#17194B">1.240</text>
+
+    <!-- tier badge Oro -->
+    <g id="tier-badge">
+      <rect x="266" y="303" width="108" height="32" rx="16" fill="#FFF4E0"/>
+      <!-- star outline -->
+      <path transform="translate(280,311)" d="M8 0 l2.35 4.9 l5.4 0.6 l-4 3.7 l1.1 5.3 l-4.85 -2.7 l-4.85 2.7 l1.1 -5.3 l-4 -3.7 l5.4 -0.6 Z"
+            fill="none" stroke="#B8790E" stroke-width="1.4" stroke-linejoin="round"/>
+      <text x="302" y="324" font-family="Epilogue" font-weight="600" font-size="12" fill="#B8790E">Nivel Oro</text>
+    </g>
+
+    <!-- progress bar -->
+    <rect x="16" y="374" width="358" height="8" rx="4" fill="#EEEEEE"/>
+    <rect x="16" y="374" width="233" height="8" rx="4" fill="#3D69FE"/>
+    <text x="16" y="400" font-family="Poppins" font-weight="400" font-size="12" fill="#7D7E88">260 puntos más para nivel Platino</text>
+  </g>
+
+  <!-- ============ STATS ROW ============ -->
+  <g id="stats-row">
+    <g text-anchor="middle">
+      <text x="76" y="440" font-family="Epilogue" font-weight="800" font-size="28" fill="#17194B">12</text>
+      <text x="76" y="461" font-family="Epilogue" font-weight="400" font-size="12" fill="#7D7E88">Avisos</text>
+
+      <text x="195" y="440" font-family="Epilogue" font-weight="800" font-size="28" fill="#17194B">8</text>
+      <text x="195" y="461" font-family="Epilogue" font-weight="400" font-size="12" fill="#7D7E88">Resueltos</text>
+
+      <text x="314" y="440" font-family="Epilogue" font-weight="800" font-size="28" fill="#17194B">47</text>
+      <text x="314" y="461" font-family="Epilogue" font-weight="400" font-size="12" fill="#7D7E88">Me gusta</text>
+    </g>
+  </g>
+
+  <!-- ============ MENU LIST ============ -->
+  <g id="menu" font-family="Poppins" font-weight="500" font-size="14" fill="#17194B">
+    <!-- Row: Notificaciones (with red dot) -->
+    <g id="row-notifications">
+      <g transform="translate(28,478)" fill="none" stroke="#17194B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 9 a7 7 0 0 1 14 0 c0 5 2 6 2 6 H2 s2 -1 2 -6 Z"/>
+        <path d="M9 18.5 a2.5 2.5 0 0 0 4 0"/>
+      </g>
+      <circle cx="47" cy="479" r="4" fill="#F24545"/>
+      <text x="62" y="493" font-family="Poppins" font-weight="500" font-size="14" fill="#17194B">Notificaciones</text>
+      <path d="M356 484 l6 5 l-6 5" fill="none" stroke="#7D7E88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <rect x="16" y="513" width="358" height="1" fill="#EEEEEE"/>
+
+    <!-- Row: Privacidad -->
+    <g id="row-privacy">
+      <g transform="translate(28,526)" fill="none" stroke="#17194B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 1 L20 4 V10 c0 6 -4 9 -9 11 c-5 -2 -9 -5 -9 -11 V4 Z"/>
+        <path d="M7 10.5 l3 3 l5 -6"/>
+      </g>
+      <text x="62" y="541" font-family="Poppins" font-weight="500" font-size="14" fill="#17194B">Privacidad y datos</text>
+      <path d="M356 532 l6 5 l-6 5" fill="none" stroke="#7D7E88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <rect x="16" y="561" width="358" height="1" fill="#EEEEEE"/>
+
+    <!-- Row: Ayuda -->
+    <g id="row-help">
+      <g transform="translate(28,574)" fill="none" stroke="#17194B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="10"/>
+        <path d="M7.5 8 a3.5 3.5 0 0 1 6.8 1 c0 2.4 -3.3 2.9 -3.3 5"/>
+        <circle cx="11" cy="16.5" r="0.6" fill="#17194B" stroke="none"/>
+      </g>
+      <text x="62" y="589" font-family="Poppins" font-weight="500" font-size="14" fill="#17194B">Ayuda</text>
+      <path d="M356 580 l6 5 l-6 5" fill="none" stroke="#7D7E88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <rect x="16" y="609" width="358" height="1" fill="#EEEEEE"/>
+
+    <!-- Row: Idioma -->
+    <g id="row-language">
+      <g transform="translate(28,622)" fill="none" stroke="#17194B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="10"/>
+        <path d="M1 11 H21"/>
+        <path d="M11 1 c4 3 4 17 0 20 c-4 -3 -4 -17 0 -20 Z"/>
+      </g>
+      <text x="62" y="637" font-family="Poppins" font-weight="500" font-size="14" fill="#17194B">Idioma: Español</text>
+      <path d="M356 628 l6 5 l-6 5" fill="none" stroke="#7D7E88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <rect x="16" y="657" width="358" height="1" fill="#EEEEEE"/>
+
+    <!-- Row: Invitar amigos -->
+    <g id="row-invite">
+      <g transform="translate(28,670)" fill="none" stroke="#17194B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="7" r="4"/>
+        <path d="M1 20 c0 -5 3.5 -8 7 -8 c2 0 3.8 1 5 2.5"/>
+        <path d="M16 15 H22 M19 12 V18"/>
+      </g>
+      <text x="62" y="685" font-family="Poppins" font-weight="500" font-size="14" fill="#17194B">Invitar a amigos</text>
+      <path d="M356 676 l6 5 l-6 5" fill="none" stroke="#7D7E88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- ============ LOG OUT + VERSION ============ -->
+  <text id="logout" x="195" y="725" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="14" fill="#F24545">Cerrar sesión</text>
+  <text id="version" x="195" y="748" text-anchor="middle" font-family="Poppins" font-weight="400" font-size="12" fill="#7D7E88">ViaClara · versión 0.1 (demo)</text>
+
+  <!-- ============ TAB BAR ============ -->
+  <g id="tab-bar">
+    <rect x="0" y="756" width="390" height="88" fill="#FFFFFF"/>
+    <rect x="0" y="756" width="390" height="1" fill="#EEEEEE"/>
+
+    <!-- Home (inactive) -->
+    <g id="tab-home">
+      <g transform="translate(85,776)" fill="none" stroke="#7D7E88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 9 L12 1 L22 9"/>
+        <path d="M4 8 V18 H20 V8"/>
+      </g>
+      <text x="97" y="812" text-anchor="middle" font-family="Epilogue" font-weight="600" font-size="12.5" fill="#7D7E88">Inicio</text>
+    </g>
+
+    <!-- Center FAB -->
+    <g id="tab-add">
+      <circle cx="195" cy="760" r="26" fill="#3D69FE" filter="url(#fabShadow)"/>
+      <path d="M195 749 V771 M184 760 H206" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+
+    <!-- Mis avisos (inactive) -->
+    <g id="tab-reports">
+      <g transform="translate(281,776)" fill="none" stroke="#7D7E88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 4 H22 M6 11 H22 M6 18 H22"/>
+        <circle cx="1.5" cy="4" r="1.2" fill="#7D7E88" stroke="none"/>
+        <circle cx="1.5" cy="11" r="1.2" fill="#7D7E88" stroke="none"/>
+        <circle cx="1.5" cy="18" r="1.2" fill="#7D7E88" stroke="none"/>
+      </g>
+      <text x="293" y="812" text-anchor="middle" font-family="Epilogue" font-weight="600" font-size="12.5" fill="#7D7E88">Mis avisos</text>
+    </g>
+  </g>
+</svg>

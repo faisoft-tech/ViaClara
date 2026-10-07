@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Incident } from '@/data/incidents';
 import { CATEGORY_CONFIG, Colors, Font, FontFamily, Radius, Shadow, Spacing } from '@/theme/tokens';
@@ -48,10 +48,14 @@ export function IncidentCard({
   return (
     <Link href={`/incident/${inc.id}`} asChild>
       <Pressable style={styles.card}>
-        {/* "Photo" thumbnail represented by the category */}
-        <View style={[styles.thumb, { backgroundColor: cat.color + '22' }]}>
-          <Ionicons name={cat.icon as any} size={24} color={cat.color} />
-        </View>
+        {/* First photo, or the category icon when the report has none */}
+        {inc.photos[0] ? (
+          <Image source={{ uri: inc.photos[0] }} style={styles.thumb} />
+        ) : (
+          <View style={[styles.thumb, { backgroundColor: cat.color + '22' }]}>
+            <Ionicons name={cat.icon as any} size={24} color={cat.color} />
+          </View>
+        )}
 
         <View style={styles.body}>
           <Text style={styles.title} numberOfLines={2}>

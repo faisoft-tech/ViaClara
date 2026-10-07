@@ -1,24 +1,27 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { IncidentCategory } from '@/theme/tokens';
+import { fetchIncident, fetchMunicipalityIncidents, toIncident } from './api';
 import {
   getPriorityScore,
   getTier,
   getTierMultiplier,
   Incident,
-  INCIDENTS,
   MUNICIPALITIES,
   Tier,
   Verification,
 } from './incidents';
 
-// Note: in-memory store, demo only. In production this would come from the
-// Lambdas + DynamoDB. It does not persist across app restarts.
+// Incidents are read from the API (apps/api), so changes made by municipal
+// staff in the admin web app show up here on refresh. Citizen actions (likes,
+// comments, new reports…) are still applied locally only: they need the
+// citizen's SMS login, which is not wired to Cognito yet.
 
 type NewIncident = {
   title: string;
   category: IncidentCategory;
   description: string;
   address: string;
+  photos: string[];
 };
 
 // Settings §6: notification preferences (local only, no real push).
@@ -59,29 +62,19 @@ export type Notification = {
   incidentId?: string;
 };
 
-// Settings §6, last item: when a citizen's own incident is resolved, after some
-// time we ask the author to confirm. In the demo (no real scheduler) this is
-// simulated by already generating that notification for the user's own resolved
-// reports that haven't been verified yet.
-function initialNotifications(incidents: Incident[]): Notification[] {
-  return incidents
-    .filter((i) => i.isMine && i.status === 'resolved' && !i.verification)
-    .map((i) => ({
-      id: `n-confirm-${i.id}`,
-      type: 'confirm_closure' as const,
-      text: `¿Se solucionó "${i.title}"? Confirma si el problema desapareció.`,
-      date: i.resolution?.date ?? i.date,
-      read: false,
-      incidentId: i.id,
-    }));
-}
-
 type StoreValue = {
   incidents: Incident[];
+  loadingIncidents: boolean;
+  // Message of the last failed load, null when the last load succeeded.
+  loadError: string | null;
+  refresh: () => Promise<void>;
+  refreshIncident: (id: string) => Promise<void>;
   isRegistered: boolean;
   // Settings §1/§6: public name the user is identified by to others.
   publicName: string | null;
-  login: (publicName: string) => void;
+  // Profile mockup: masked phone number shown under the public name.
+  phone: string | null;
+  login: (publicName: string, phone: string) => void;
   logout: () => void;
   toggleLike: (id: string) => void;
   toggleWatch: (id: string) => void;
@@ -102,6 +95,9 @@ type StoreValue = {
   verifyResolution: (id: string, result: Verification['result']) => void;
   // RF-015 / RF-018: priority score of an incident (uses its author's tier).
   priorityScoreOf: (inc: Incident) => number;
+  // Settings §4: edit/delete an incident's own data.
+  updateIncident: (id: string, patch: Partial<Pick<Incident, 'title' | 'category' | 'description'>>) => void;
+  deleteIncident: (id: string) => void;
   // Settings §6: general user stats (mock of the "stats endpoint").
   stats: { reportsCreated: number; reportsResolved: number; likesReceived: number };
   // Settings §6: notification preferences.
@@ -122,18 +118,63 @@ const StoreContext = createContext<StoreValue | null>(null);
 let nextId = 100;
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [incidents, setIncidents] = useState<Incident[]>(INCIDENTS);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [loadingIncidents, setLoadingIncidents] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [publicName, setPublicName] = useState<string | null>(null);
+  const [phone, setPhone] = useState<string | null>(null);
   const [municipalityId, setMunicipalityId] = useState(MUNICIPALITIES[0].id);
   const [points, setPoints] = useState(0);
   const [notificationPrefs, setNotificationPrefs] = useState<NotificationPrefs>(
     DEFAULT_NOTIFICATION_PREFS,
   );
   const [language, setLanguage] = useState<Language>('es');
-  const [notifications, setNotifications] = useState<Notification[]>(() =>
-    initialNotifications(INCIDENTS),
-  );
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const municipalityRef = useRef(municipalityId);
+  municipalityRef.current = municipalityId;
+  const languageRef = useRef(language);
+  languageRef.current = language;
+
+  const refresh = useCallback(async () => {
+    const id = municipalityRef.current;
+    setLoadingIncidents(true);
+    try {
+      const fresh = await fetchMunicipalityIncidents(id);
+      const freshIds = new Set(fresh.map((i) => i.id));
+      setIncidents((prev) => {
+        const prevById = new Map(prev.map((i) => [i.id, i]));
+        const others = prev.filter(
+          (i) => !freshIds.has(i.id) && (i.municipalityId !== id || i.id.startsWith('local-')),
+        );
+        return [...fresh.map((api) => toIncident(api, languageRef.current, prevById.get(api.id))), ...others];
+      });
+      setLoadError(null);
+    } catch (err) {
+      setLoadError((err as Error).message);
+    } finally {
+      setLoadingIncidents(false);
+    }
+  }, []);
+
+  const refreshIncident = useCallback(async (id: string) => {
+    if (id.startsWith('local-')) return;
+    try {
+      const api = await fetchIncident(id);
+      setIncidents((prev) => {
+        if (!api) return prev.filter((i) => i.id !== id);
+        const previous = prev.find((i) => i.id === id);
+        const fresh = toIncident(api, languageRef.current, previous);
+        return previous ? prev.map((i) => (i.id === id ? fresh : i)) : [fresh, ...prev];
+      });
+    } catch (err) {
+      setLoadError((err as Error).message);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refresh();
+  }, [municipalityId, refresh]);
 
   const update = (id: string, fn: (i: Incident) => Incident) =>
     setIncidents((prev) => prev.map((i) => (i.id === id ? fn(i) : i)));
@@ -167,15 +208,23 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<StoreValue>(
     () => ({
       incidents,
+      loadingIncidents,
+      loadError,
+      refresh,
+      refreshIncident,
       isRegistered,
       publicName,
-      login: (name) => {
+      phone,
+      login: (name, phoneNumber) => {
         setIsRegistered(true);
         setPublicName(name);
+        setPhone(phoneNumber);
       },
+      // Settings §1/§6: logging out doesn't forget the public name or phone —
+      // they're reused to skip the name step on the next login (see
+      // SignupSheet's login mode).
       logout: () => {
         setIsRegistered(false);
-        setPublicName(null);
       },
       toggleLike: (id) =>
         update(id, (i) => ({
@@ -209,6 +258,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       addComment: (id, text) =>
         update(id, (i) => ({
           ...i,
+          commentsCount: i.commentsCount + 1,
           comments: [
             ...i.comments,
             { id: `c${Date.now()}`, author: publicName ?? 'Tú', text, date: 'ahora', likes: 0 },
@@ -224,7 +274,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           ),
         })),
       create: (data) => {
-        const id = `inc-${nextId++}`;
+        const id = `local-${nextId++}`;
         const newIncident: Incident = {
           id,
           title: data.title || 'Aviso sin título',
@@ -238,6 +288,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           createdAt: Date.now(),
           createdBy: publicName ?? 'Tú',
           likes: 0,
+          commentsCount: 0,
           liked: false,
           watching: true,
           isMine: true,
@@ -245,6 +296,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           watchersCount: 0,
           comments: [],
           history: [{ status: 'submitted', date: 'ahora' }],
+          photos: data.photos,
         };
         setIncidents((prev) => [newIncident, ...prev]);
         return id;
@@ -278,6 +330,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           }));
         }
       },
+      updateIncident: (id, patch) => update(id, (i) => ({ ...i, ...patch })),
+      deleteIncident: (id) => setIncidents((prev) => prev.filter((i) => i.id !== id)),
       stats,
       notificationPrefs,
       setNotificationPref: (key, value) =>
@@ -293,8 +347,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       incidents,
+      loadingIncidents,
+      loadError,
+      refresh,
+      refreshIncident,
       isRegistered,
       publicName,
+      phone,
       municipalityId,
       points,
       tier,

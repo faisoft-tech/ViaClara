@@ -1,0 +1,295 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="844" viewBox="0 0 1680 844" fill="none">
+  <defs>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0A2A33" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- ============================ FRAME 1: step-photo ============================ -->
+  <g id="step-photo" transform="translate(0,0)">
+    <rect x="0" y="0" width="390" height="844" fill="#FAFAFC"/>
+
+    <!-- status bar -->
+    <g id="status-bar">
+      <text x="24" y="33" font-family="Poppins" font-weight="700" font-size="15" fill="#17194B">9:41</text>
+      <rect x="318" y="24" width="3" height="6" rx="1" fill="#17194B"/>
+      <rect x="323" y="21" width="3" height="9" rx="1" fill="#17194B"/>
+      <rect x="328" y="18" width="3" height="12" rx="1" fill="#17194B"/>
+      <rect x="333" y="15" width="3" height="15" rx="1" fill="#17194B"/>
+      <path d="M344 23 q8 -8 16 0" stroke="#17194B" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <circle cx="352" cy="27" r="1.6" fill="#17194B"/>
+      <rect x="366" y="18" width="20" height="10" rx="2.5" stroke="#17194B" stroke-width="1.4" fill="none"/>
+      <rect x="368" y="20" width="14" height="6" rx="1" fill="#17194B"/>
+      <rect x="387" y="21" width="2" height="4" rx="1" fill="#17194B"/>
+    </g>
+
+    <!-- header -->
+    <g id="header">
+      <rect x="0" y="50" width="390" height="62" fill="#FFFFFF"/>
+      <line x1="0" y1="112" x2="390" y2="112" stroke="#EEEEEE" stroke-width="1"/>
+      <text x="195" y="88" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="16" fill="#17194B">Reportar incidencia</text>
+      <g id="close">
+        <line x1="349" y1="76" x2="363" y2="90" stroke="#7D7E88" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="363" y1="76" x2="349" y2="90" stroke="#7D7E88" stroke-width="2.2" stroke-linecap="round"/>
+      </g>
+    </g>
+
+    <!-- label -->
+    <text x="24" y="150" font-family="Epilogue" font-weight="700" font-size="12" letter-spacing="0.4" fill="#7D7E88">FOTO</text>
+
+    <!-- photo box -->
+    <g id="photo-box">
+      <rect x="24" y="162" width="342" height="160" rx="16" fill="#E7EDFF"/>
+      <!-- camera icon -->
+      <rect x="168" y="234" width="54" height="38" rx="7" fill="none" stroke="#3D69FE" stroke-width="2.4"/>
+      <path d="M182 234 l4 -7 h18 l4 7" fill="none" stroke="#3D69FE" stroke-width="2.4" stroke-linejoin="round"/>
+      <circle cx="195" cy="253" r="10" fill="none" stroke="#3D69FE" stroke-width="2.4"/>
+    </g>
+
+    <!-- buttons -->
+    <g id="btn-take-photo">
+      <rect x="24" y="344" width="342" height="50" rx="12" fill="#3D69FE"/>
+      <rect x="150" y="362" width="16" height="13" rx="3" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>
+      <circle cx="158" cy="368.5" r="3.4" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>
+      <text x="176" y="374" font-family="Poppins" font-weight="600" font-size="14" fill="#FFFFFF">Hacer foto</text>
+    </g>
+    <g id="btn-gallery">
+      <rect x="24" y="404" width="342" height="50" rx="12" fill="#E7EDFF"/>
+      <rect x="138" y="422" width="16" height="13" rx="2.5" fill="none" stroke="#3D69FE" stroke-width="1.8"/>
+      <circle cx="143" cy="428" r="1.6" fill="#3D69FE"/>
+      <path d="M139 434 l4 -4 3 3 3 -4 3 5" fill="none" stroke="#3D69FE" stroke-width="1.6" stroke-linejoin="round"/>
+      <text x="162" y="434" font-family="Poppins" font-weight="600" font-size="14" fill="#3D69FE">Elegir de la galería</text>
+    </g>
+
+    <!-- next CTA -->
+    <g id="btn-next">
+      <rect x="24" y="770" width="342" height="50" rx="12" fill="#3D69FE"/>
+      <text x="195" y="801" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="14" fill="#FFFFFF">Siguiente</text>
+    </g>
+  </g>
+
+  <!-- ============================ FRAME 2: step-location ============================ -->
+  <g id="step-location" transform="translate(430,0)">
+    <rect x="0" y="0" width="390" height="844" fill="#FFFFFF"/>
+
+    <!-- status bar -->
+    <g id="status-bar">
+      <text x="24" y="33" font-family="Poppins" font-weight="700" font-size="15" fill="#17194B">9:41</text>
+      <rect x="318" y="24" width="3" height="6" rx="1" fill="#17194B"/>
+      <rect x="323" y="21" width="3" height="9" rx="1" fill="#17194B"/>
+      <rect x="328" y="18" width="3" height="12" rx="1" fill="#17194B"/>
+      <rect x="333" y="15" width="3" height="15" rx="1" fill="#17194B"/>
+      <path d="M344 23 q8 -8 16 0" stroke="#17194B" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <circle cx="352" cy="27" r="1.6" fill="#17194B"/>
+      <rect x="366" y="18" width="20" height="10" rx="2.5" stroke="#17194B" stroke-width="1.4" fill="none"/>
+      <rect x="368" y="20" width="14" height="6" rx="1" fill="#17194B"/>
+      <rect x="387" y="21" width="2" height="4" rx="1" fill="#17194B"/>
+    </g>
+
+    <!-- header -->
+    <g id="header">
+      <path d="M32 74 l-9 9 9 9" fill="none" stroke="#17194B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="195" y="88" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="14" fill="#17194B">Ubicación</text>
+    </g>
+
+    <!-- map -->
+    <g id="map">
+      <rect x="0" y="104" width="390" height="456" fill="#E9EDF1"/>
+      <line x1="0" y1="241" x2="390" y2="241" stroke="#DCE2E8" stroke-width="1"/>
+      <line x1="0" y1="355" x2="390" y2="355" stroke="#DCE2E8" stroke-width="1"/>
+      <line x1="0" y1="469" x2="390" y2="469" stroke="#DCE2E8" stroke-width="1"/>
+      <line x1="98" y1="104" x2="98" y2="560" stroke="#DCE2E8" stroke-width="1"/>
+      <line x1="195" y1="104" x2="195" y2="560" stroke="#DCE2E8" stroke-width="1"/>
+      <line x1="292" y1="104" x2="292" y2="560" stroke="#DCE2E8" stroke-width="1"/>
+      <!-- locate button -->
+      <g id="locate-btn" filter="url(#cardShadow)">
+        <rect x="338" y="116" width="36" height="36" rx="18" fill="#FFFFFF"/>
+        <text x="356" y="140" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="16" fill="#17194B">?</text>
+      </g>
+      <!-- pin -->
+      <g id="pin">
+        <path d="M195 320 l-8 -12 h16 z" fill="#F2A415"/>
+        <circle cx="195" cy="295" r="17" fill="#F2A415" stroke="#FFFFFF" stroke-width="2"/>
+        <path d="M195 288 a5 5 0 0 1 0 10 a5 5 0 0 1 0 -10 M195 298 l0 4" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+      </g>
+    </g>
+
+    <!-- bottom sheet -->
+    <g id="sheet" filter="url(#cardShadow)">
+      <rect x="0" y="540" width="390" height="304" rx="24" fill="#FFFFFF"/>
+    </g>
+    <rect x="177" y="556" width="36" height="4" rx="2" fill="#EEEEEE"/>
+
+    <!-- search row -->
+    <g id="search-row">
+      <rect x="24" y="578" width="342" height="44" rx="12" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <circle cx="45" cy="600" r="6" fill="none" stroke="#7D7E88" stroke-width="1.8"/>
+      <line x1="49.5" y1="604.5" x2="54" y2="609" stroke="#7D7E88" stroke-width="1.8" stroke-linecap="round"/>
+      <text x="62" y="605" font-family="Poppins" font-weight="400" font-size="12" fill="#7D7E88">Buscar en Google Maps</text>
+      <g id="navigate-btn">
+        <circle cx="349" cy="600" r="13" fill="#12B3AE"/>
+        <path d="M344 600 l10 -4 -4 10 -1.5 -4.5 z" fill="#FFFFFF"/>
+      </g>
+    </g>
+
+    <!-- address card -->
+    <g id="address-card">
+      <rect x="24" y="632" width="342" height="56" rx="12" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <text x="38" y="658" font-family="Poppins" font-weight="500" font-size="14" fill="#17194B">Paseo de San Cristóbal, Almuñécar</text>
+      <text x="38" y="676" font-family="Poppins" font-weight="400" font-size="12" fill="#7D7E88">Almuñécar · Detectada automáticamente</text>
+    </g>
+
+    <!-- hint -->
+    <text x="24" y="708" font-family="Poppins" font-weight="400" font-style="italic" font-size="12" fill="#7D7E88">¿No conoces la ubicación exacta? Selecciónala en el mapa</text>
+
+    <!-- my location -->
+    <g id="my-location">
+      <rect x="24" y="720" width="342" height="44" rx="12" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <circle cx="46" cy="742" r="8" fill="none" stroke="#3D69FE" stroke-width="2"/>
+      <text x="64" y="747" font-family="Poppins" font-weight="500" font-size="12" fill="#3D69FE">Mi ubicación</text>
+    </g>
+
+    <!-- confirm CTA -->
+    <g id="btn-confirm">
+      <rect x="24" y="784" width="342" height="50" rx="12" fill="#3D69FE"/>
+      <text x="195" y="815" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="14" fill="#FFFFFF">Confirmar ubicación</text>
+    </g>
+  </g>
+
+  <!-- ============================ FRAME 3: step-details ============================ -->
+  <g id="step-details" transform="translate(860,0)">
+    <rect x="0" y="0" width="390" height="844" fill="#FAFAFC"/>
+
+    <!-- status bar -->
+    <g id="status-bar">
+      <text x="24" y="33" font-family="Poppins" font-weight="700" font-size="15" fill="#17194B">9:41</text>
+      <rect x="318" y="24" width="3" height="6" rx="1" fill="#17194B"/>
+      <rect x="323" y="21" width="3" height="9" rx="1" fill="#17194B"/>
+      <rect x="328" y="18" width="3" height="12" rx="1" fill="#17194B"/>
+      <rect x="333" y="15" width="3" height="15" rx="1" fill="#17194B"/>
+      <path d="M344 23 q8 -8 16 0" stroke="#17194B" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <circle cx="352" cy="27" r="1.6" fill="#17194B"/>
+      <rect x="366" y="18" width="20" height="10" rx="2.5" stroke="#17194B" stroke-width="1.4" fill="none"/>
+      <rect x="368" y="20" width="14" height="6" rx="1" fill="#17194B"/>
+      <rect x="387" y="21" width="2" height="4" rx="1" fill="#17194B"/>
+    </g>
+
+    <!-- header -->
+    <g id="header">
+      <rect x="0" y="50" width="390" height="62" fill="#FFFFFF"/>
+      <line x1="0" y1="112" x2="390" y2="112" stroke="#EEEEEE" stroke-width="1"/>
+      <path d="M32 74 l-9 9 9 9" fill="none" stroke="#17194B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="195" y="88" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="16" fill="#17194B">Detalles</text>
+      <g id="close">
+        <line x1="349" y1="76" x2="363" y2="90" stroke="#7D7E88" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="363" y1="76" x2="349" y2="90" stroke="#7D7E88" stroke-width="2.2" stroke-linecap="round"/>
+      </g>
+    </g>
+
+    <!-- category label -->
+    <text x="24" y="150" font-family="Epilogue" font-weight="700" font-size="12" letter-spacing="0.4" fill="#7D7E88">CATEGORÍA</text>
+
+    <!-- category chips -->
+    <g id="cat-chips">
+      <!-- row 1 -->
+      <g id="chip-lighting">
+        <rect x="24" y="162" width="104" height="34" rx="17" fill="#FAFAFC"/>
+        <circle cx="43" cy="179" r="5" fill="none" stroke="#F59F00" stroke-width="1.6"/>
+        <line x1="41" y1="186" x2="45" y2="186" stroke="#F59F00" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="54" y="184" font-family="Epilogue" font-weight="600" font-size="12" fill="#17194B">Alumbrado</text>
+      </g>
+      <g id="chip-road-selected">
+        <rect x="136" y="162" width="88" height="34" rx="17" fill="#3D69FE"/>
+        <path d="M155 185 l7 -12 7 12 z" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linejoin="round"/>
+        <line x1="162" y1="177" x2="162" y2="181" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="162" cy="184" r="0.9" fill="#FFFFFF"/>
+        <text x="174" y="184" font-family="Epilogue" font-weight="600" font-size="12" fill="#FFFFFF">Calzada</text>
+      </g>
+      <g id="chip-cleaning">
+        <rect x="232" y="162" width="100" height="34" rx="17" fill="#FAFAFC"/>
+        <path d="M247 176 h12 l-1 12 h-10 z" fill="none" stroke="#2F9E44" stroke-width="1.6" stroke-linejoin="round"/>
+        <line x1="245" y1="176" x2="261" y2="176" stroke="#2F9E44" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="268" y="184" font-family="Epilogue" font-weight="600" font-size="12" fill="#17194B">Limpieza</text>
+      </g>
+      <!-- row 2 -->
+      <g id="chip-furniture">
+        <rect x="24" y="204" width="108" height="34" rx="17" fill="#FAFAFC"/>
+        <path d="M40 220 l6 6 M45 219 l4 -4 3 3 -4 4 z" fill="none" stroke="#9C36B5" stroke-width="1.6" stroke-linejoin="round"/>
+        <text x="56" y="226" font-family="Epilogue" font-weight="600" font-size="12" fill="#17194B">Mobiliario</text>
+      </g>
+      <g id="chip-green">
+        <rect x="140" y="204" width="118" height="34" rx="17" fill="#FAFAFC"/>
+        <path d="M158 226 c-4 -10 4 -14 10 -14 c0 8 -4 14 -10 14 z M158 226 l7 -8" fill="none" stroke="#37B24D" stroke-width="1.6" stroke-linejoin="round"/>
+        <text x="172" y="226" font-family="Epilogue" font-weight="600" font-size="12" fill="#17194B">Zonas verdes</text>
+      </g>
+      <g id="chip-other">
+        <rect x="266" y="204" width="66" height="34" rx="17" fill="#FAFAFC"/>
+        <circle cx="284" cy="221" r="1.6" fill="#5B6B7B"/>
+        <circle cx="290" cy="221" r="1.6" fill="#5B6B7B"/>
+        <circle cx="296" cy="221" r="1.6" fill="#5B6B7B"/>
+        <text x="303" y="226" font-family="Epilogue" font-weight="600" font-size="12" fill="#17194B">Otros</text>
+      </g>
+    </g>
+
+    <!-- description label -->
+    <text x="24" y="278" font-family="Epilogue" font-weight="700" font-size="12" letter-spacing="0.4" fill="#7D7E88">DESCRIPCIÓN</text>
+
+    <!-- textarea -->
+    <g id="textarea">
+      <rect x="24" y="290" width="342" height="90" rx="12" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <text x="38" y="312" font-family="Poppins" font-weight="400" font-size="14" fill="#7D7E88">Cuéntanos qué está pasando y desde cuándo…</text>
+    </g>
+
+    <!-- send CTA -->
+    <g id="btn-send">
+      <rect x="24" y="770" width="342" height="50" rx="12" fill="#3D69FE"/>
+      <text x="195" y="801" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="14" fill="#FFFFFF">Enviar aviso</text>
+    </g>
+  </g>
+
+  <!-- ============================ FRAME 4: step-success ============================ -->
+  <g id="step-success" transform="translate(1290,0)">
+    <rect x="0" y="0" width="390" height="844" fill="#FAFAFC"/>
+
+    <!-- status bar -->
+    <g id="status-bar">
+      <text x="24" y="33" font-family="Poppins" font-weight="700" font-size="15" fill="#17194B">9:41</text>
+      <rect x="318" y="24" width="3" height="6" rx="1" fill="#17194B"/>
+      <rect x="323" y="21" width="3" height="9" rx="1" fill="#17194B"/>
+      <rect x="328" y="18" width="3" height="12" rx="1" fill="#17194B"/>
+      <rect x="333" y="15" width="3" height="15" rx="1" fill="#17194B"/>
+      <path d="M344 23 q8 -8 16 0" stroke="#17194B" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <circle cx="352" cy="27" r="1.6" fill="#17194B"/>
+      <rect x="366" y="18" width="20" height="10" rx="2.5" stroke="#17194B" stroke-width="1.4" fill="none"/>
+      <rect x="368" y="20" width="14" height="6" rx="1" fill="#17194B"/>
+      <rect x="387" y="21" width="2" height="4" rx="1" fill="#17194B"/>
+    </g>
+
+    <!-- success icon -->
+    <g id="success-icon">
+      <circle cx="195" cy="320" r="44" fill="#00A854" fill-opacity="0.1"/>
+      <path d="M177 320 l12 12 22 -24" fill="none" stroke="#00A854" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- title -->
+    <text x="195" y="418" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="26" fill="#17194B">¡Aviso enviado!</text>
+
+    <!-- body -->
+    <g id="success-body">
+      <text text-anchor="middle" font-family="Poppins" font-size="14" fill="#7D7E88">
+        <tspan x="195" y="456">Tu aviso <tspan font-weight="600" fill="#17194B">#inc-004</tspan> fue enviado al</tspan>
+        <tspan x="195" y="476">ayuntamiento de Almuñécar. Te avisaremos</tspan>
+        <tspan x="195" y="496">cuando cambie de estado.</tspan>
+      </text>
+    </g>
+
+    <!-- primary CTA -->
+    <g id="btn-back-home">
+      <rect x="24" y="536" width="342" height="52" rx="12" fill="#3D69FE"/>
+      <text x="195" y="569" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="14" fill="#FFFFFF">Volver al inicio</text>
+    </g>
+
+    <!-- link -->
+    <text x="195" y="614" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="12" fill="#7D7E88">Ver mi aviso</text>
+  </g>
+</svg>

@@ -1,11 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { IncidentCard } from '@/components/IncidentCard';
 import { MUNICIPALITIES } from '@/data/incidents';
 import { useStore } from '@/data/store';
+import { useStatusLabel } from '@/i18n/labels';
+import { useT } from '@/i18n/useT';
 import { Colors, Font, FontFamily, IncidentStatus, Radius, Shadow, Spacing, STATUS_CONFIG } from '@/theme/tokens';
 
 // RF-017 / CU-007: "My reports" status filter. 'all' means no filter.
@@ -15,11 +17,12 @@ type MunicipalityFilter = 'all' | string;
 
 export default function MyReportsScreen() {
   const insets = useSafeAreaInsets();
+  const t = useT();
+  const statusLabel = useStatusLabel();
   const { incidents } = useStore();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [municipalityFilter, setMunicipalityFilter] = useState<MunicipalityFilter>('all');
   const [municipalityPicker, setMunicipalityPicker] = useState(false);
-  const [locationQuery, setLocationQuery] = useState('');
 
   // Settings §2: "My reports" no longer includes the Watching tab (lives on Home).
   const baseData = incidents.filter((i) => i.isMine);
@@ -32,24 +35,22 @@ export default function MyReportsScreen() {
   }, [baseData]);
   const showMunicipalityFilter = myMunicipalities.length > 1;
 
-  // RF-017 / CU-007: status, municipality and location filters (combined with AND),
-  // and the list is ALWAYS sorted by descending date (most recent first).
+  // RF-017 / CU-007: status and municipality filters (combined with AND), and the
+  // list is ALWAYS sorted by descending date (most recent first).
   const data = useMemo(() => {
-    const query = locationQuery.trim().toLowerCase();
     return baseData
       .filter((i) => statusFilter === 'all' || i.status === statusFilter)
       .filter((i) => municipalityFilter === 'all' || i.municipalityId === municipalityFilter)
-      .filter((i) => query === '' || i.address.toLowerCase().includes(query))
       .sort((a, b) => b.createdAt - a.createdAt);
-  }, [baseData, statusFilter, municipalityFilter, locationQuery]);
+  }, [baseData, statusFilter, municipalityFilter]);
 
-  const hasActiveFilters = statusFilter !== 'all' || locationQuery.trim() !== '' || municipalityFilter !== 'all';
+  const hasActiveFilters = statusFilter !== 'all' || municipalityFilter !== 'all';
   const activeMunicipality = MUNICIPALITIES.find((m) => m.id === municipalityFilter);
 
   return (
     <View style={styles.container}>
       {/* No blue header bar: the mockup uses a plain text title over the light background */}
-      <Text style={[styles.pageTitle, { paddingTop: insets.top + Spacing.xl }]}>Mis avisos</Text>
+      <Text style={[styles.pageTitle, { paddingTop: insets.top + Spacing.xl }]}>{t('myReportsTitle')}</Text>
 
       {/* Status chips */}
       <ScrollView
@@ -58,7 +59,7 @@ export default function MyReportsScreen() {
         style={styles.chipsRow}
         contentContainerStyle={styles.chipsContent}>
         <Chip
-          label="Todos"
+          label={t('chipAll')}
           active={statusFilter === 'all'}
           activeBg={Colors.text}
           onPress={() => setStatusFilter('all')}
@@ -66,7 +67,7 @@ export default function MyReportsScreen() {
         {(Object.keys(STATUS_CONFIG) as IncidentStatus[]).map((s) => (
           <Chip
             key={s}
-            label={STATUS_CONFIG[s].label}
+            label={statusLabel(s)}
             icon={STATUS_CONFIG[s].icon}
             color={STATUS_CONFIG[s].color}
             active={statusFilter === s}
@@ -80,28 +81,11 @@ export default function MyReportsScreen() {
         <Pressable style={styles.scopeRow} onPress={() => setMunicipalityPicker(true)}>
           <Ionicons name="location" size={15} color={Colors.primary} />
           <Text style={styles.scopeText}>
-            {activeMunicipality ? activeMunicipality.name : 'Toda la ciudad'}
+            {activeMunicipality ? activeMunicipality.name : t('wholeCity')}
           </Text>
           <Ionicons name="chevron-down" size={14} color={Colors.primary} />
         </Pressable>
       )}
-
-      {/* Location filter */}
-      <View style={styles.locationRow}>
-        <Ionicons name="location-outline" size={18} color={Colors.textMuted} />
-        <TextInput
-          style={styles.locationInput}
-          placeholder="Filtrar por ubicación..."
-          placeholderTextColor={Colors.textMuted}
-          value={locationQuery}
-          onChangeText={setLocationQuery}
-        />
-        {locationQuery.length > 0 && (
-          <Pressable onPress={() => setLocationQuery('')} hitSlop={10}>
-            <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
-          </Pressable>
-        )}
-      </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {data.map((inc) => (
@@ -120,7 +104,7 @@ export default function MyReportsScreen() {
             <View style={styles.emptyBadge}>
               <Ionicons name="filter-outline" size={32} color={Colors.primary} />
             </View>
-            <Text style={styles.emptyText}>No hay avisos que coincidan con los filtros.</Text>
+            <Text style={styles.emptyText}>{t('emptyFiltered')}</Text>
           </View>
         )}
         {baseData.length === 0 && (
@@ -128,7 +112,7 @@ export default function MyReportsScreen() {
             <View style={styles.emptyBadge}>
               <Ionicons name="create-outline" size={32} color={Colors.primary} />
             </View>
-            <Text style={styles.emptyText}>Aún no has reportado nada.{'\n'}Usa el botón Reportar para empezar.</Text>
+            <Text style={styles.emptyText}>{t('emptyNoReportsYet')}{'\n'}{t('emptyNoReportsHint')}</Text>
           </View>
         )}
       </ScrollView>
@@ -147,7 +131,7 @@ export default function MyReportsScreen() {
                 setMunicipalityFilter('all');
                 setMunicipalityPicker(false);
               }}>
-              <Text style={styles.pickerRowLabel}>Toda la ciudad</Text>
+              <Text style={styles.pickerRowLabel}>{t('wholeCity')}</Text>
               {municipalityFilter === 'all' && <Ionicons name="checkmark-circle" size={20} color={Colors.primary} />}
             </Pressable>
             {myMunicipalities.map((m) => (
@@ -233,20 +217,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   scopeText: { fontFamily: FontFamily.medium, fontSize: Font.small, color: Colors.primary },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    marginHorizontal: Spacing.lg,
-    marginTop: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    height: 44,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  locationInput: { flex: 1, fontSize: Font.body, color: Colors.text, fontFamily: FontFamily.regular },
   scroll: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
   cardDeclined: { opacity: 0.75 },
   empty: { alignItems: 'center', marginTop: 80, gap: Spacing.md },

@@ -1,0 +1,405 @@
+[
+  {
+    "id": "demo-alm-01",
+    "municipalityId": "almunecar",
+    "title": "Socavón en la calzada de la Avenida de Europa",
+    "category": "road",
+    "status": "in_progress",
+    "description": "Hay un agujero grande en el carril de bajada, a la altura del paso de peatones. Los coches lo esquivan invadiendo el otro carril y de noche casi no se ve.",
+    "address": "Avenida de Europa, junto al paso de peatones",
+    "lat": 36.7322,
+    "lng": -3.6855,
+    "author": "Antonio M.",
+    "daysAgo": 6,
+    "likes": 41,
+    "watchers": 18,
+    "photos": ["pothole-1.jpg"],
+    "comments": [
+      { "author": "Lucía P.", "text": "Ayer una moto casi se cae ahí. Es peligroso de verdad.", "daysAgo": 5.6, "likes": 12 },
+      { "author": "Ayuntamiento de Almuñécar", "text": "Hemos señalizado la zona. La brigada de obras lo repara el jueves por la mañana.", "daysAgo": 4, "isMunicipality": true, "likes": 9 }
+    ],
+    "history": [
+      { "status": "submitted", "daysAgo": 6 },
+      { "status": "open", "daysAgo": 5.5 },
+      { "status": "in_progress", "daysAgo": 4, "note": "Zona señalizada; reparación programada con la brigada de obras" }
+    ]
+  },
+  {
+    "id": "demo-alm-02",
+    "municipalityId": "almunecar",
+    "title": "Farola apagada en el Paseo del Altillo",
+    "category": "lighting",
+    "status": "open",
+    "description": "La farola junto al mirador lleva cuatro noches sin encenderse. El tramo queda a oscuras y mucha gente pasea por ahí al volver de la playa.",
+    "address": "Paseo del Altillo, junto al mirador",
+    "lat": 36.7357,
+    "lng": -3.6888,
+    "author": "María J.",
+    "daysAgo": 3,
+    "likes": 17,
+    "watchers": 7,
+    "photos": ["streetlight.jpg"],
+    "comments": [
+      { "author": "Pedro R.", "text": "Confirmo, anoche seguía apagada.", "daysAgo": 2.4, "likes": 3 }
+    ],
+    "history": [
+      { "status": "submitted", "daysAgo": 3 },
+      { "status": "open", "daysAgo": 2 }
+    ]
+  },
+  {
+    "id": "demo-alm-03",
+    "municipalityId": "almunecar",
+    "title": "Contenedores desbordados en la Plaza de la Constitución",
+    "category": "cleaning",
+    "status": "resolved",
+    "description": "Los contenedores de la esquina no se han vaciado desde el viernes. Hay bolsas por el suelo y empieza a oler.",
+    "address": "Plaza de la Constitución, esquina con Calle Real",
+    "lat": 36.7343,
+    "lng": -3.6896,
+    "author": "Carmen L.",
+    "daysAgo": 9,
+    "likes": 29,
+    "watchers": 11,
+    "photos": ["bins-overflowing-1.jpg"],
+    "comments": [
+      { "author": "Ayuntamiento de Almuñécar", "text": "Avisada la empresa de recogida. Se refuerza el servicio este fin de semana.", "daysAgo": 8.5, "isMunicipality": true, "likes": 6 },
+      { "author": "Carmen L.", "text": "Ya está limpio, ¡gracias!", "daysAgo": 7.5, "likes": 4 }
+    ],
+    "history": [
+      { "status": "submitted", "daysAgo": 9 },
+      { "status": "open", "daysAgo": 8.8 },
+      { "status": "in_progress", "daysAgo": 8.5, "note": "Aviso a la empresa de recogida" },
+      { "status": "resolved", "daysAgo": 8, "note": "Contenedores vaciados y zona baldeada" }
+    ],
+    "resolution": { "daysAgo": 8, "note": "Contenedores vaciados y zona baldeada. Se añade una recogida extra los lunes." },
+    "verification": { "daysAgo": 7.5, "result": "verified" }
+  },
+  {
+    "id": "demo-alm-04",
+    "municipalityId": "almunecar",
+    "title": "Acera levantada por las raíces de un ficus",
+    "category": "road",
+    "status": "submitted",
+    "description": "Las raíces del árbol han levantado las baldosas y hay un escalón de varios centímetros. Con carrito o silla de ruedas no se puede pasar.",
+    "address": "Avenida de Andalucía, frente a la parada de autobús",
+    "lat": 36.7365,
+    "lng": -3.6931,
+    "author": "José A.",
+    "daysAgo": 0.3,
+    "likes": 5,
+    "watchers": 2,
+    "photos": ["sidewalk-tree-roots.jpg"],
+    "comments": [],
+    "history": [{ "status": "submitted", "daysAgo": 0.3 }]
+  },
+  {
+    "id": "demo-alm-05",
+    "municipalityId": "almunecar",
+    "title": "Pintadas en la persiana del local de la Calle Puerta de Granada",
+    "category": "other",
+    "status": "open",
+    "description": "Han hecho pintadas en la persiana de un local cerrado y en la pared de al lado. Es la entrada al casco antiguo y da muy mala imagen.",
+    "address": "Calle Puerta de Granada",
+    "lat": 36.7351,
+    "lng": -3.6912,
+    "author": "Elena G.",
+    "daysAgo": 4,
+    "likes": 9,
+    "watchers": 3,
+    "photos": ["graffiti-shutter.jpg"],
+    "comments": [],
+    "history": [
+      { "status": "submitted", "daysAgo": 4 },
+      { "status": "open", "daysAgo": 3 }
+    ]
+  },
+  {
+    "id": "demo-alm-06",
+    "municipalityId": "almunecar",
+    "title": "Banco roto en el parque El Majuelo",
+    "category": "furniture",
+    "status": "submitted",
+    "description": "Al banco que hay junto a la zona infantil le falta un listón del asiento y quedan clavos a la vista.",
+    "address": "Parque El Majuelo, junto a la zona infantil",
+    "lat": 36.7318,
+    "lng": -3.6921,
+    "author": "Rocío F.",
+    "daysAgo": 1,
+    "likes": 6,
+    "watchers": 2,
+    "photos": [],
+    "comments": [
+      { "author": "Manuel D.", "text": "Mis hijos juegan ahí todas las tardes, a ver si lo arreglan pronto.", "daysAgo": 0.8, "likes": 2 }
+    ],
+    "history": [{ "status": "submitted", "daysAgo": 1 }]
+  },
+  {
+    "id": "demo-alm-07",
+    "municipalityId": "almunecar",
+    "title": "Seto que invade la acera en el Paseo de San Cristóbal",
+    "category": "green_areas",
+    "status": "declined",
+    "description": "El seto de una parcela sobresale casi un metro y obliga a bajar a la calzada.",
+    "address": "Paseo de San Cristóbal, tramo final",
+    "lat": 36.7309,
+    "lng": -3.6979,
+    "author": "Francisco R.",
+    "daysAgo": 12,
+    "likes": 4,
+    "watchers": 1,
+    "photos": ["overgrown-hedge.jpg"],
+    "comments": [
+      { "author": "Ayuntamiento de Almuñécar", "text": "Es una parcela privada: hemos requerido al propietario que lo pode en un plazo de 15 días.", "daysAgo": 10, "isMunicipality": true, "likes": 3 }
+    ],
+    "history": [
+      { "status": "submitted", "daysAgo": 12 },
+      { "status": "declined", "daysAgo": 10, "note": "Parcela privada: se notifica al propietario" }
+    ]
+  },
+  {
+    "id": "demo-sal-01",
+    "municipalityId": "salobrena",
+    "title": "Restos de poda sin recoger en el Paseo de las Flores",
+    "category": "green_areas",
+    "status": "in_progress",
+    "description": "Después de la poda dejaron las ramas amontonadas en el parterre. Llevan ahí más de una semana.",
+    "address": "Paseo de las Flores",
+    "lat": 36.7441,
+    "lng": -3.5872,
+    "author": "Inmaculada S.",
+    "daysAgo": 8,
+    "likes": 14,
+    "watchers": 5,
+    "photos": ["pruning-debris.jpg"],
+    "comments": [
+      { "author": "Ayuntamiento de Salobreña", "text": "Pasamos el aviso a jardinería, lo retiran esta semana.", "daysAgo": 6, "isMunicipality": true, "likes": 4 }
+    ],
+    "history": [
+      { "status": "submitted", "daysAgo": 8 },
+      { "status": "open", "daysAgo": 7 },
+      { "status": "in_progress", "daysAgo": 6, "note": "Asignado a jardinería" }
+    ]
+  },
+  {
+    "id": "demo-sal-02",
+    "municipalityId": "salobrena",
+    "title": "Hundimiento de la acera en el Paseo Marítimo",
+    "category": "road",
+    "status": "open",
+    "description": "Tras las últimas lluvias se ha hundido un trozo de acera junto al murete. Hay un hueco considerable y nada que lo señalice.",
+    "address": "Paseo Marítimo, playa de La Charca",
+    "lat": 36.7352,
+    "lng": -3.5895,
+    "author": "Javier N.",
+    "daysAgo": 2,
+    "likes": 33,
+    "watchers": 15,
+    "photos": ["sidewalk-collapsed.jpg"],
+    "comments": [
+      { "author": "Marta V.", "text": "Por favor, que pongan al menos una valla. Pasan muchos niños.", "daysAgo": 1.7, "likes": 10 },
+      { "author": "Ayuntamiento de Salobreña", "text": "Policía Local ha balizado la zona. Los técnicos lo valoran mañana.", "daysAgo": 1.5, "isMunicipality": true, "likes": 8 }
+    ],
+    "history": [
+      { "status": "submitted", "daysAgo": 2 },
+      { "status": "open", "daysAgo": 1.5, "note": "Zona balizada por Policía Local" }
+    ]
+  },
+  {
+    "id": "demo-sal-03",
+    "municipalityId": "salobrena",
+    "title": "Farolas apagadas en la subida al Castillo",
+    "category": "lighting",
+    "status": "submitted",
+    "description": "Tres farolas seguidas de la cuesta están apagadas. Es una calle empinada y de noche resulta peligrosa.",
+    "address": "Subida al Castillo de Salobreña",
+    "lat": 36.7465,
+    "lng": -3.5868,
+    "author": "Ana B.",
+    "daysAgo": 0.6,
+    "likes": 8,
+    "watchers": 3,
+    "photos": [],
+    "comments": [],
+    "history": [{ "status": "submitted", "daysAgo": 0.6 }]
+  },
+  {
+    "id": "demo-sal-04",
+    "municipalityId": "salobrena",
+    "title": "Papelera desbordada en la Avenida del Mediterráneo",
+    "category": "cleaning",
+    "status": "resolved",
+    "description": "La papelera de la parada de autobús está llena y la basura sale por fuera.",
+    "address": "Avenida del Mediterráneo, parada de autobús",
+    "lat": 36.7405,
+    "lng": -3.5881,
+    "author": "Luis C.",
+    "daysAgo": 5,
+    "likes": 7,
+    "watchers": 2,
+    "photos": ["bins-overflowing-2.jpg"],
+    "comments": [],
+    "history": [
+      { "status": "submitted", "daysAgo": 5 },
+      { "status": "open", "daysAgo": 4.8 },
+      { "status": "resolved", "daysAgo": 4.5, "note": "Papelera vaciada" }
+    ],
+    "resolution": { "daysAgo": 4.5, "note": "Papelera vaciada. Se aumenta la frecuencia de recogida en esa parada." }
+  },
+  {
+    "id": "demo-sal-05",
+    "municipalityId": "salobrena",
+    "title": "Bache en el acceso a El Peñón",
+    "category": "road",
+    "status": "resolved",
+    "description": "Bache profundo justo en la entrada del aparcamiento. Cuando llueve se llena de agua.",
+    "address": "Acceso al aparcamiento de El Peñón",
+    "lat": 36.7339,
+    "lng": -3.5838,
+    "author": "Sergio T.",
+    "daysAgo": 15,
+    "likes": 19,
+    "watchers": 6,
+    "photos": ["pothole-2.jpg"],
+    "comments": [
+      { "author": "Sergio T.", "text": "Lo taparon, pero con la lluvia de anoche se ha vuelto a abrir.", "daysAgo": 2, "likes": 5 }
+    ],
+    "history": [
+      { "status": "submitted", "daysAgo": 15 },
+      { "status": "open", "daysAgo": 14 },
+      { "status": "in_progress", "daysAgo": 12 },
+      { "status": "resolved", "daysAgo": 10, "note": "Bacheado con asfalto en frío" }
+    ],
+    "resolution": { "daysAgo": 10, "note": "Bacheado con asfalto en frío." },
+    "verification": { "daysAgo": 2, "result": "not_resolved" }
+  },
+  {
+    "id": "demo-mot-01",
+    "municipalityId": "motril",
+    "title": "Contenedores llenos en la Rambla de los Álamos",
+    "category": "cleaning",
+    "status": "open",
+    "description": "Los contenedores del cruce están llenos desde el domingo y hay cartones y bolsas en la acera.",
+    "address": "Rambla de los Álamos, cruce con Calle Nueva",
+    "lat": 36.7468,
+    "lng": -3.5185,
+    "author": "Dolores P.",
+    "daysAgo": 1.5,
+    "likes": 22,
+    "watchers": 9,
+    "photos": ["bins-overflowing-1.jpg"],
+    "comments": [
+      { "author": "Raúl E.", "text": "Lo mismo en la calle de al lado.", "daysAgo": 1.2, "likes": 4 }
+    ],
+    "history": [
+      { "status": "submitted", "daysAgo": 1.5 },
+      { "status": "open", "daysAgo": 1 }
+    ]
+  },
+  {
+    "id": "demo-mot-02",
+    "municipalityId": "motril",
+    "title": "Bache en la Avenida de Salobreña",
+    "category": "road",
+    "status": "in_progress",
+    "description": "En el carril derecho, poco antes de la rotonda, hay un bache que ya ha reventado alguna rueda.",
+    "address": "Avenida de Salobreña, antes de la rotonda",
+    "lat": 36.7442,
+    "lng": -3.5302,
+    "author": "Alberto G.",
+    "daysAgo": 7,
+    "likes": 38,
+    "watchers": 14,
+    "photos": ["pothole-2.jpg"],
+    "comments": [
+      { "author": "Ayuntamiento de Motril", "text": "Incluido en la próxima campaña de asfaltado, que empieza el lunes.", "daysAgo": 5, "isMunicipality": true, "likes": 7 }
+    ],
+    "history": [
+      { "status": "submitted", "daysAgo": 7 },
+      { "status": "open", "daysAgo": 6 },
+      { "status": "in_progress", "daysAgo": 5, "note": "Incluido en la campaña de asfaltado" }
+    ]
+  },
+  {
+    "id": "demo-mot-03",
+    "municipalityId": "motril",
+    "title": "Pintadas en la fachada del Mercado de San Agustín",
+    "category": "other",
+    "status": "submitted",
+    "description": "Esta noche han hecho pintadas en la persiana lateral del mercado.",
+    "address": "Mercado de San Agustín, fachada lateral",
+    "lat": 36.7489,
+    "lng": -3.5181,
+    "author": "Teresa M.",
+    "daysAgo": 0.2,
+    "likes": 3,
+    "watchers": 1,
+    "photos": ["graffiti-shutter.jpg"],
+    "comments": [],
+    "history": [{ "status": "submitted", "daysAgo": 0.2 }]
+  },
+  {
+    "id": "demo-mot-04",
+    "municipalityId": "motril",
+    "title": "Farola fundida en la Plaza de España",
+    "category": "lighting",
+    "status": "resolved",
+    "description": "Una de las farolas de la plaza, la que está frente al ayuntamiento, no enciende.",
+    "address": "Plaza de España, frente al Ayuntamiento",
+    "lat": 36.7497,
+    "lng": -3.5195,
+    "author": "Pilar R.",
+    "daysAgo": 11,
+    "likes": 12,
+    "watchers": 4,
+    "photos": ["streetlight.jpg"],
+    "comments": [],
+    "history": [
+      { "status": "submitted", "daysAgo": 11 },
+      { "status": "open", "daysAgo": 10.5 },
+      { "status": "in_progress", "daysAgo": 10 },
+      { "status": "resolved", "daysAgo": 9, "note": "Cambiada la lámpara" }
+    ],
+    "resolution": { "daysAgo": 9, "note": "Lámpara sustituida por una LED." },
+    "verification": { "daysAgo": 8, "result": "verified" }
+  },
+  {
+    "id": "demo-mot-05",
+    "municipalityId": "motril",
+    "title": "Acera rota en el Parque de los Pueblos de América",
+    "category": "furniture",
+    "status": "open",
+    "description": "Las raíces han roto el pavimento del camino principal. Ya ha tropezado alguna persona mayor.",
+    "address": "Parque de los Pueblos de América, camino principal",
+    "lat": 36.7521,
+    "lng": -3.5226,
+    "author": "Ramón H.",
+    "daysAgo": 3.5,
+    "likes": 15,
+    "watchers": 6,
+    "photos": ["sidewalk-tree-roots.jpg"],
+    "comments": [],
+    "history": [
+      { "status": "submitted", "daysAgo": 3.5 },
+      { "status": "open", "daysAgo": 2.5 }
+    ]
+  },
+  {
+    "id": "demo-mot-06",
+    "municipalityId": "motril",
+    "title": "Vegetación tapa una señal en Playa Poniente",
+    "category": "green_areas",
+    "status": "submitted",
+    "description": "Las adelfas han crecido tanto que no se ve la señal de ceda el paso de la salida del aparcamiento.",
+    "address": "Playa Poniente, salida del aparcamiento",
+    "lat": 36.7183,
+    "lng": -3.5352,
+    "author": "Nuria A.",
+    "daysAgo": 1.2,
+    "likes": 10,
+    "watchers": 4,
+    "photos": ["overgrown-hedge.jpg"],
+    "comments": [],
+    "history": [{ "status": "submitted", "daysAgo": 1.2 }]
+  }
+]

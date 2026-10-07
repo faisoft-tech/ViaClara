@@ -23,7 +23,18 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: t('notifPanelTitle') }} />
+      <Stack.Screen
+        options={{
+          title: t('notifPanelTitle'),
+          // Profile mockup: the profile menu only has one "Notificaciones" entry
+          // (the panel); preferences are one tap away from here instead.
+          headerRight: () => (
+            <Pressable onPress={() => router.push('/settings/notifications')} hitSlop={8}>
+              <Ionicons name="options-outline" size={22} color={Colors.primary} />
+            </Pressable>
+          ),
+        }}
+      />
       <ScrollView contentContainerStyle={styles.scroll}>
         {notifications.length > 0 && (
           <Pressable onPress={markAllNotificationsRead} hitSlop={8} style={styles.markAll}>

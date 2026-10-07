@@ -7,26 +7,33 @@ import { useT } from '@/i18n/useT';
 import { Colors, FontFamily, Radius, Spacing } from '@/theme/tokens';
 
 type Step = 'welcome' | 'phone' | 'otp' | 'name';
+type Mode = 'signup' | 'login';
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 28;
 
 // Staggered express signup: only appears when a social action requires it.
-// Real flow (simulated, no backend): Welcome -> Phone -> SMS code -> Public name.
+// Real flow (simulated, no backend): Welcome -> Phone -> SMS code -> Public name
+// (signup) or straight to login (returning user with a remembered name).
 export function SignupSheet({
   visible,
   reason,
+  knownName,
   onClose,
   onRegister,
 }: {
   visible: boolean;
   reason?: string;
+  // Settings §1: name remembered from a previous session's signup, so a
+  // returning user ("Ya tengo cuenta") can log back in without re-entering it.
+  knownName?: string | null;
   onClose: () => void;
-  onRegister: (publicName: string) => void;
+  onRegister: (publicName: string, phone: string) => void;
 }) {
   const insets = useSafeAreaInsets();
   const t = useT();
   const [step, setStep] = useState<Step>('welcome');
+  const [mode, setMode] = useState<Mode>('signup');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [name, setName] = useState('');
@@ -39,6 +46,7 @@ export function SignupSheet({
   useEffect(() => {
     if (visible) {
       setStep('welcome');
+      setMode('signup');
       setPhone('');
       setOtp('');
       setName('');
@@ -66,6 +74,16 @@ export function SignupSheet({
   const phoneValid = phone.replace(/\D/g, '').length >= 9;
   const otpValid = otp.length === OTP_LENGTH;
 
+  function startSignup() {
+    setMode('signup');
+    setStep('phone');
+  }
+
+  function startLogin() {
+    setMode('login');
+    setStep('phone');
+  }
+
   function sendCode() {
     if (!phoneValid) return;
     setSending(true);
@@ -85,6 +103,12 @@ export function SignupSheet({
 
   function verifyCode() {
     if (!otpValid) return;
+    // Login: if we already know this user's public name from a previous
+    // session, log them straight in without asking again.
+    if (mode === 'login' && knownName) {
+      onRegister(knownName, phone);
+      return;
+    }
     setStep('name');
   }
 
@@ -92,11 +116,10 @@ export function SignupSheet({
 
   function confirmName() {
     if (!nameValid) return;
-    onRegister(name.trim());
+    onRegister(name.trim(), phone);
   }
 
-  const welcomeBody =
-    reason ?? 'Reporta lo que ves. Sigue lo que importa. Mejora tu ciudad, entre todos.';
+  const welcomeBody = reason ?? t('welcomeDefaultBody');
 
   return (
     <Modal
@@ -116,11 +139,11 @@ export function SignupSheet({
           <Text style={styles.splashBody}>{welcomeBody}</Text>
 
           <View style={styles.splashActions}>
-            <Pressable style={styles.splashPrimaryBtn} onPress={() => setStep('phone')}>
-              <Text style={styles.splashPrimaryText}>Continuar con mi número</Text>
+            <Pressable style={styles.splashPrimaryBtn} onPress={startSignup}>
+              <Text style={styles.splashPrimaryText}>{t('continueWithPhone')}</Text>
             </Pressable>
-            <Pressable onPress={onClose} hitSlop={8}>
-              <Text style={styles.splashLink}>Ya tengo cuenta</Text>
+            <Pressable onPress={startLogin} hitSlop={8}>
+              <Text style={styles.splashLink}>{t('alreadyHaveAccount')}</Text>
             </Pressable>
           </View>
         </View>
@@ -136,10 +159,8 @@ export function SignupSheet({
             <Ionicons name="chevron-back" size={24} color={Colors.text} />
           </Pressable>
 
-          <Text style={styles.title}>¿Cuál es tu número?</Text>
-          <Text style={styles.body}>
-            Te enviamos un código por SMS para verificar tu cuenta. Sin correo, sin contraseñas.
-          </Text>
+          <Text style={styles.title}>{t('phoneStepTitle')}</Text>
+          <Text style={styles.body}>{t('phoneStepBody')}</Text>
 
           <View style={styles.phoneRow}>
             <View style={styles.prefix}>
@@ -147,7 +168,7 @@ export function SignupSheet({
             </View>
             <TextInput
               style={[styles.phoneInput, !phone && styles.inputBorderMuted]}
-              placeholder="600 000 000"
+              placeholder={t('phonePlaceholder')}
               placeholderTextColor={Colors.textMuted}
               keyboardType="phone-pad"
               value={phone}
@@ -158,16 +179,14 @@ export function SignupSheet({
           </View>
 
           <View style={styles.spacer}>
-            <Text style={styles.hint}>
-              Tu número solo se usa para verificarte y nunca se muestra públicamente.
-            </Text>
+            <Text style={styles.hint}>{t('phoneHint')}</Text>
           </View>
 
           <Pressable
             style={[styles.primaryBtn, !phoneValid && styles.primaryBtnDisabled]}
             disabled={!phoneValid || sending}
             onPress={sendCode}>
-            <Text style={styles.primaryText}>{sending ? 'Enviando…' : 'Enviar código'}</Text>
+            <Text style={styles.primaryText}>{sending ? t('sendingCode') : t('sendCode')}</Text>
           </Pressable>
         </View>
       )}
@@ -182,9 +201,9 @@ export function SignupSheet({
             <Ionicons name="chevron-back" size={24} color={Colors.text} />
           </Pressable>
 
-          <Text style={styles.title}>Ingresa el código</Text>
+          <Text style={styles.title}>{t('otpStepTitle')}</Text>
           <Text style={styles.body}>
-            Enviamos un SMS al <Text style={styles.bodyStrong}>+34 {phone}</Text>
+            {t('otpSentTo')} <Text style={styles.bodyStrong}>+34 {phone}</Text>
           </Text>
 
           <Pressable style={styles.otpBoxRow} onPress={() => otpInputRef.current?.focus()}>
@@ -199,7 +218,7 @@ export function SignupSheet({
             style={styles.otpHiddenInput}
             keyboardType="number-pad"
             value={otp}
-            onChangeText={(t) => setOtp(t.replace(/\D/g, '').slice(0, OTP_LENGTH))}
+            onChangeText={(v) => setOtp(v.replace(/\D/g, '').slice(0, OTP_LENGTH))}
             maxLength={OTP_LENGTH}
             autoFocus
           />
@@ -207,7 +226,7 @@ export function SignupSheet({
           <View style={styles.spacer}>
             <Pressable onPress={resendCode} hitSlop={8} disabled={resendSeconds > 0}>
               <Text style={[styles.resend, resendSeconds > 0 && styles.resendMuted]}>
-                ¿No llegó? Reenviar código
+                {t('resendCode')}
                 {resendSeconds > 0 ? ` (0:${String(resendSeconds).padStart(2, '0')})` : ''}
               </Text>
             </Pressable>
@@ -217,7 +236,7 @@ export function SignupSheet({
             style={[styles.primaryBtn, !otpValid && styles.primaryBtnDisabled]}
             disabled={!otpValid}
             onPress={verifyCode}>
-            <Text style={styles.primaryText}>Verificar</Text>
+            <Text style={styles.primaryText}>{t('verifyCodeCta')}</Text>
           </Pressable>
         </View>
       )}

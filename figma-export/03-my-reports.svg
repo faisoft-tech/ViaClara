@@ -1,0 +1,212 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" fill="none">
+  <defs>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0A2A33" flood-opacity="0.08"/>
+    </filter>
+    <filter id="fabShadow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#3D69FE" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Frame background -->
+  <rect id="frame-bg" x="0" y="0" width="390" height="844" fill="#FAFAFC"/>
+
+  <!-- ============ STATUS BAR ============ -->
+  <g id="status-bar">
+    <text x="24" y="32" font-family="Poppins" font-weight="700" font-size="15" fill="#17194B">9:41</text>
+    <!-- signal -->
+    <g id="sb-signal" fill="#17194B">
+      <rect x="318" y="24" width="3" height="6" rx="1"/>
+      <rect x="323" y="21" width="3" height="9" rx="1"/>
+      <rect x="328" y="18" width="3" height="12" rx="1"/>
+      <rect x="333" y="15" width="3" height="15" rx="1"/>
+    </g>
+    <!-- wifi -->
+    <g id="sb-wifi" fill="none" stroke="#17194B" stroke-width="1.6" stroke-linecap="round">
+      <path d="M343 19 a9 9 0 0 1 12 0"/>
+      <path d="M345.5 22.5 a5.5 5.5 0 0 1 7 0"/>
+    </g>
+    <circle cx="349" cy="27.5" r="1.4" fill="#17194B"/>
+    <!-- battery -->
+    <g id="sb-battery">
+      <rect x="360" y="17" width="22" height="11" rx="3" fill="none" stroke="#17194B" stroke-width="1.4" opacity="0.5"/>
+      <rect x="383" y="20" width="2" height="5" rx="1" fill="#17194B" opacity="0.5"/>
+      <rect x="362" y="19" width="15" height="7" rx="1.5" fill="#17194B"/>
+    </g>
+  </g>
+
+  <!-- ============ PAGE TITLE ============ -->
+  <text id="page-title" x="16" y="96" font-family="Poppins" font-weight="600" font-size="22" fill="#17194B">Mis avisos</text>
+
+  <!-- ============ STATUS CHIPS (horizontal scroll row) ============ -->
+  <g id="status-chips">
+    <!-- Todos (active, dark) -->
+    <g id="chip-all">
+      <rect x="16" y="124" width="56" height="40" rx="20" fill="#17194B"/>
+      <text x="44" y="148.5" text-anchor="middle" font-family="Epilogue" font-weight="500" font-size="12" fill="#FFFFFF">Todos</text>
+    </g>
+
+    <!-- Registrada (submitted, textMuted) -->
+    <g id="chip-submitted">
+      <rect x="80" y="124" width="108" height="40" rx="20" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <g transform="translate(101.5,144)">
+        <rect x="-5" y="-6.5" width="10" height="13" rx="1.5" fill="none" stroke="#7D7E88" stroke-width="1.5"/>
+        <line x1="-2.5" y1="-2.5" x2="2.5" y2="-2.5" stroke="#7D7E88" stroke-width="1.2"/>
+        <line x1="-2.5" y1="0.5" x2="2.5" y2="0.5" stroke="#7D7E88" stroke-width="1.2"/>
+        <line x1="-2.5" y1="3.5" x2="1" y2="3.5" stroke="#7D7E88" stroke-width="1.2"/>
+      </g>
+      <text x="115" y="148.5" font-family="Epilogue" font-weight="500" font-size="12" fill="#17194B">Registrada</text>
+    </g>
+
+    <!-- Abierta (open, danger) -->
+    <g id="chip-open">
+      <rect x="196" y="124" width="92" height="40" rx="20" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <g transform="translate(217.5,144)">
+        <circle r="7" fill="#F24545"/>
+        <rect x="-0.9" y="-4" width="1.8" height="5" rx="0.9" fill="#FFFFFF"/>
+        <circle cy="3" r="1.1" fill="#FFFFFF"/>
+      </g>
+      <text x="231" y="148.5" font-family="Epilogue" font-weight="500" font-size="12" fill="#17194B">Abierta</text>
+    </g>
+
+    <!-- En curso (in_progress, warning) -->
+    <g id="chip-in_progress">
+      <rect x="296" y="124" width="104" height="40" rx="20" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <g transform="translate(317.5,144)">
+        <path d="M5.5 -5.5 a3.5 3.5 0 0 0 -4.6 4.6 L-5.4 5 a1.4 1.4 0 0 0 2 2 l5.9 -5.9 a3.5 3.5 0 0 0 3.1 -5.7 l-2.1 2.1 -1.9 -1.9 z" fill="#F2A415"/>
+      </g>
+      <text x="331" y="148.5" font-family="Epilogue" font-weight="500" font-size="12" fill="#17194B">En curso</text>
+    </g>
+
+    <!-- Resuelta (resolved, success) - trails off screen -->
+    <g id="chip-resolved">
+      <rect x="408" y="124" width="102" height="40" rx="20" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <g transform="translate(429.5,144)">
+        <circle r="7" fill="#00A854"/>
+        <path d="M-3 0 L-0.8 2.3 L3.2 -2.6" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text x="443" y="148.5" font-family="Epilogue" font-weight="500" font-size="12" fill="#17194B">Resuelta</text>
+    </g>
+
+    <!-- Declinada (declined, slate) - trails off screen -->
+    <g id="chip-declined">
+      <rect x="518" y="124" width="108" height="40" rx="20" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <g transform="translate(539.5,144)">
+        <circle r="7" fill="#4B4C60"/>
+        <rect x="-3.2" y="-0.9" width="6.4" height="1.8" rx="0.9" fill="#FFFFFF"/>
+      </g>
+      <text x="553" y="148.5" font-family="Epilogue" font-weight="500" font-size="12" fill="#17194B">Declinada</text>
+    </g>
+  </g>
+
+  <!-- ============ INCIDENT CARDS (compact) ============ -->
+
+  <!-- Card 1: inc-003 · Limpieza · Resuelta -->
+  <g id="card-inc-003">
+    <rect x="16" y="180" width="358" height="70" rx="16" fill="#FFFFFF" filter="url(#cardShadow)"/>
+    <!-- thumbnail: cleaning / trash -->
+    <rect x="28" y="192" width="46" height="46" rx="10" fill="#2F9E44" fill-opacity="0.13"/>
+    <g transform="translate(51,215)" fill="#2F9E44">
+      <rect x="-3" y="-9" width="6" height="2.2" rx="1"/>
+      <rect x="-9" y="-6.5" width="18" height="2.4" rx="1.2"/>
+      <path d="M-7 -3.4 L7 -3.4 L5.6 9.3 a1.5 1.5 0 0 1 -1.5 1.3 L-4.1 10.6 a1.5 1.5 0 0 1 -1.5 -1.3 Z"/>
+      <rect x="-2.2" y="-1" width="1.6" height="8.5" rx="0.8" fill="#FFFFFF"/>
+      <rect x="0.6" y="-1" width="1.6" height="8.5" rx="0.8" fill="#FFFFFF"/>
+    </g>
+    <!-- title + status badge -->
+    <text x="86" y="212" font-family="Poppins" font-weight="600" font-size="14" fill="#17194B">Contenedor desbordado</text>
+    <g id="badge-inc-003">
+      <rect x="278" y="195" width="84" height="22" rx="11" fill="#00A854"/>
+      <g transform="translate(292.5,206)">
+        <circle r="6.5" fill="#FFFFFF" fill-opacity="0.001"/>
+        <path d="M-2.8 0 L-0.7 2.1 L3 -2.4" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle r="6.5" fill="none" stroke="#FFFFFF" stroke-width="1.4"/>
+      </g>
+      <text x="304" y="210" font-family="Epilogue" font-weight="600" font-size="12" fill="#FFFFFF" letter-spacing="0.2">Resuelta</text>
+    </g>
+    <!-- address · date -->
+    <text x="86" y="232" font-family="Poppins" font-weight="400" font-size="12" fill="#7D7E88">Plaza Mayor · hace 8 días</text>
+  </g>
+
+  <!-- Card 2: inc-011 · Calzada · En curso -->
+  <g id="card-inc-011">
+    <rect x="16" y="258" width="358" height="70" rx="16" fill="#FFFFFF" filter="url(#cardShadow)"/>
+    <!-- thumbnail: road / warning -->
+    <rect x="28" y="270" width="46" height="46" rx="10" fill="#E8590C" fill-opacity="0.13"/>
+    <g transform="translate(51,293)" fill="#E8590C">
+      <path d="M0 -9.5 L10.4 8.8 a1.6 1.6 0 0 1 -1.4 2.4 L-9 11.2 a1.6 1.6 0 0 1 -1.4 -2.4 Z"/>
+      <rect x="-1" y="-3.5" width="2" height="6.5" rx="1" fill="#FFFFFF"/>
+      <circle cy="6.3" r="1.2" fill="#FFFFFF"/>
+    </g>
+    <!-- title + status badge -->
+    <text x="86" y="290" font-family="Poppins" font-weight="600" font-size="14" fill="#17194B">Señal de tráfico doblada</text>
+    <g id="badge-inc-011">
+      <rect x="278" y="273" width="84" height="22" rx="11" fill="#F2A415"/>
+      <g transform="translate(292.5,284)">
+        <path d="M4.7 -4.7 a3 3 0 0 0 -3.9 3.9 L-4.6 4.3 a1.2 1.2 0 0 0 1.7 1.7 l5 -5 a3 3 0 0 0 2.6 -4.9 l-1.8 1.8 -1.6 -1.6 z" fill="#FFFFFF"/>
+      </g>
+      <text x="304" y="288" font-family="Epilogue" font-weight="600" font-size="12" fill="#FFFFFF" letter-spacing="0.2">En curso</text>
+    </g>
+    <!-- address · date -->
+    <text x="86" y="310" font-family="Poppins" font-weight="400" font-size="12" fill="#7D7E88">Avenida del Mar, 12 · hace 5 días</text>
+  </g>
+
+  <!-- Card 3: inc-012 · Otros · Declinada (dimmed) -->
+  <g id="card-inc-012" opacity="0.75">
+    <rect x="16" y="336" width="358" height="70" rx="16" fill="#FFFFFF" filter="url(#cardShadow)"/>
+    <!-- thumbnail: other / ellipsis -->
+    <rect x="28" y="348" width="46" height="46" rx="10" fill="#5B6B7B" fill-opacity="0.13"/>
+    <g transform="translate(51,371)" fill="#5B6B7B">
+      <circle cx="-6" r="2"/>
+      <circle cx="0" r="2"/>
+      <circle cx="6" r="2"/>
+    </g>
+    <!-- title + status badge -->
+    <text x="86" y="368" font-family="Poppins" font-weight="600" font-size="14" fill="#17194B">Ruido de obras nocturno</text>
+    <g id="badge-inc-012">
+      <rect x="272" y="351" width="90" height="22" rx="11" fill="#4B4C60"/>
+      <g transform="translate(286.5,362)">
+        <circle r="6.5" fill="none" stroke="#FFFFFF" stroke-width="1.4"/>
+        <rect x="-3" y="-0.8" width="6" height="1.6" rx="0.8" fill="#FFFFFF"/>
+      </g>
+      <text x="298" y="366" font-family="Epilogue" font-weight="600" font-size="12" fill="#FFFFFF" letter-spacing="0.2">Declinada</text>
+    </g>
+    <!-- address · date -->
+    <text x="86" y="388" font-family="Poppins" font-weight="400" font-size="12" fill="#7D7E88">Calle Real, 8 · hace 12 días</text>
+  </g>
+
+  <!-- ============ TAB BAR ============ -->
+  <g id="tab-bar">
+    <rect x="0" y="756" width="390" height="88" fill="#FFFFFF"/>
+    <line x1="0" y1="756" x2="390" y2="756" stroke="#EEEEEE" stroke-width="1"/>
+
+    <!-- Home (inactive) -->
+    <g id="tab-home">
+      <g transform="translate(97,780)" fill="none" stroke="#7D7E88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-9 0 L0 -8 L9 0"/>
+        <path d="M-6.5 -1.5 L-6.5 8 L6.5 8 L6.5 -1.5"/>
+        <path d="M-2.5 8 L-2.5 2.5 L2.5 2.5 L2.5 8"/>
+      </g>
+      <text x="97" y="812" text-anchor="middle" font-family="Epilogue" font-weight="600" font-size="12.5" fill="#7D7E88">Inicio</text>
+    </g>
+
+    <!-- Central + button (elevated) -->
+    <g id="tab-add">
+      <circle cx="195" cy="760" r="26" fill="#3D69FE" filter="url(#fabShadow)"/>
+      <path d="M195 748 L195 772 M183 760 L207 760" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/>
+    </g>
+
+    <!-- Mis avisos (active) -->
+    <g id="tab-my-reports">
+      <g transform="translate(293,780)">
+        <circle cx="-8" cy="-5" r="1.6" fill="#3D69FE"/>
+        <rect x="-4" y="-6" width="12" height="2" rx="1" fill="#3D69FE"/>
+        <circle cx="-8" cy="0" r="1.6" fill="#3D69FE"/>
+        <rect x="-4" y="-1" width="12" height="2" rx="1" fill="#3D69FE"/>
+        <circle cx="-8" cy="5" r="1.6" fill="#3D69FE"/>
+        <rect x="-4" y="4" width="12" height="2" rx="1" fill="#3D69FE"/>
+      </g>
+      <text x="293" y="812" text-anchor="middle" font-family="Epilogue" font-weight="600" font-size="12.5" fill="#3D69FE">Mis avisos</text>
+    </g>
+  </g>
+</svg>

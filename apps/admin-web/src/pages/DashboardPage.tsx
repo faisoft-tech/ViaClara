@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
+import { LazyIncidentMap } from '../components/LazyIncidentMap';
 import { StatusBadge } from '../components/StatusBadge';
 import { useIncidentStore } from '../context/IncidentStoreContext';
-import { MUNICIPALITIES } from '../data/municipalities';
+import { formatDate } from '../lib/format';
 import {
   INCIDENT_CATEGORY_LABELS,
   INCIDENT_STATUS_LABELS,
@@ -27,9 +28,13 @@ const CATEGORY_FILTERS: (IncidentCategory | 'all')[] = [
 // is called out as very important in the spec, mirroring the citizen-facing
 // "Inicio" screen in the mobile app.
 export function DashboardPage() {
-  const { incidents, municipalityId, setMunicipalityId } = useIncidentStore();
+  const { incidents, municipalities, municipalityId, setMunicipalityId, loading, error, lastUpdated, refresh } =
+    useIncidentStore();
   const [statusFilter, setStatusFilter] = useState<IncidentStatus | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<IncidentCategory | 'all'>('all');
+  const [view, setView] = useState<'list' | 'map'>('list');
+  const navigate = useNavigate();
+  const municipality = municipalities.find((m) => m.id === municipalityId);
 
   const visibleIncidents = useMemo(() => {
     return incidents
@@ -58,7 +63,7 @@ export function DashboardPage() {
               value={municipalityId}
               onChange={(e) => setMunicipalityId(e.target.value)}
             >
-              {MUNICIPALITIES.map((m) => (
+              {municipalities.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
                 </option>
@@ -98,36 +103,79 @@ export function DashboardPage() {
             </select>
           </label>
 
-          <span className="filters-bar__count">
-            {visibleIncidents.length} incidencia{visibleIncidents.length === 1 ? '' : 's'}
-          </span>
-        </div>
-
-        <div className="incident-table">
-          <div className="incident-table__row incident-table__row--header">
-            <span>Título</span>
-            <span>Categoría</span>
-            <span>Estado</span>
-            <span>Prioridad</span>
-            <span>Fecha</span>
+          <div className="view-toggle" role="group" aria-label="Vista">
+            {(['list', 'map'] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={`view-toggle__option${view === option ? ' view-toggle__option--active' : ''}`}
+                aria-pressed={view === option}
+                onClick={() => setView(option)}
+              >
+                {option === 'list' ? 'Lista' : 'Mapa'}
+              </button>
+            ))}
           </div>
 
-          {visibleIncidents.length === 0 && (
-            <div className="incident-table__empty">No hay incidencias que coincidan con estos filtros.</div>
-          )}
-
-          {visibleIncidents.map((incident) => (
-            <Link key={incident.id} to={`/incidents/${incident.id}`} className="incident-table__row">
-              <span className="incident-table__title">{incident.title}</span>
-              <span>{INCIDENT_CATEGORY_LABELS[incident.category]}</span>
-              <span>
-                <StatusBadge status={incident.status} />
-              </span>
-              <span className="incident-table__priority">{incident.priorityScore.toFixed(1)}</span>
-              <span>{incident.date}</span>
-            </Link>
-          ))}
+          <span className="filters-bar__count">
+            {visibleIncidents.length} incidencia{visibleIncidents.length === 1 ? '' : 's'}
+            {lastUpdated && ` · actualizado ${lastUpdated.toLocaleTimeString('es-ES')}`}
+          </span>
+          <button type="button" className="button button--ghost" onClick={() => void refresh()} disabled={loading}>
+            {loading ? 'Actualizando…' : 'Actualizar'}
+          </button>
         </div>
+
+        {error && (
+          <p className="alert alert--error" role="alert">
+            No se pudieron cargar las incidencias: {error}
+          </p>
+        )}
+
+        {view === 'map' && municipality && (
+          <LazyIncidentMap
+            incidents={visibleIncidents}
+            center={municipality.center}
+            onOpen={(id) => navigate(`/incidents/${id}`)}
+          />
+        )}
+
+        {view === 'list' && (
+          <div className="incident-table">
+            <div className="incident-table__row incident-table__row--header">
+              <span>Título</span>
+              <span>Categoría</span>
+              <span>Estado</span>
+              <span>Prioridad</span>
+              <span>Fecha</span>
+            </div>
+
+            {visibleIncidents.length === 0 && (
+              <div className="incident-table__empty">
+                {loading && !lastUpdated ? 'Cargando incidencias…' : 'No hay incidencias que coincidan con estos filtros.'}
+              </div>
+            )}
+
+            {visibleIncidents.map((incident) => (
+              <Link key={incident.id} to={`/incidents/${incident.id}`} className="incident-table__row">
+                <span className="incident-table__title">
+                  {incident.photos[0] ? (
+                    <img className="incident-table__thumb" src={incident.photos[0]} alt="" loading="lazy" />
+                  ) : (
+                    <span className="incident-table__thumb incident-table__thumb--empty" aria-hidden="true" />
+                  )}
+                  {incident.title}
+                </span>
+                <span>{INCIDENT_CATEGORY_LABELS[incident.category]}</span>
+                <span>
+                  <StatusBadge status={incident.status} />
+                </span>
+                <span className="incident-table__priority">{incident.priorityScore.toFixed(1)}</span>
+                <span>{formatDate(incident.date)}</span>
+              </Link>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );

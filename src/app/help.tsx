@@ -8,14 +8,8 @@ import { useStore } from '@/data/store';
 import { useT } from '@/i18n/useT';
 import { Colors, Font, FontFamily, Radius, Shadow, Spacing } from '@/theme/tokens';
 
-const FAQS = [
-  { q: '¿Cómo reporto una incidencia?', a: 'Pulsa el botón central de la barra inferior, añade una foto, elige la categoría, describe el problema y confirma la ubicación.' },
-  { q: '¿Cómo sé si se ha resuelto?', a: 'Recibirás el aviso en el timeline de seguimiento del aviso y, si es tuyo, se te pedirá que confirmes si el problema desapareció.' },
-  { q: '¿Puedo reportar sin crear una cuenta?', a: 'Puedes explorar y ver avisos sin cuenta, pero para reportar, comentar o seguir avisos necesitas verificar tu número de teléfono.' },
-];
-
-// Settings §6: help section with FAQ, help centre, bug report, active council's
-// contact info, and a short explanation of the app.
+// Settings §6: help section with FAQ, a unified system help centre (bug
+// report form), and the active council's contact info.
 export default function HelpScreen() {
   const t = useT();
   const { municipalityId } = useStore();
@@ -23,6 +17,12 @@ export default function HelpScreen() {
   const [open, setOpen] = useState<string | null>(null);
   const [bugText, setBugText] = useState('');
   const [bugSent, setBugSent] = useState(false);
+
+  const faqs = [
+    { q: t('helpFaqQ1'), a: t('helpFaqA1') },
+    { q: t('helpFaqQ2'), a: t('helpFaqA2') },
+    { q: t('helpFaqQ3'), a: t('helpFaqA3') },
+  ];
 
   function toggle(id: string) {
     setOpen((o) => (o === id ? null : id));
@@ -34,13 +34,16 @@ export default function HelpScreen() {
     setBugText('');
   }
 
+  const [contactBefore, contactAfter] = t('helpContactBody').split('{municipality}');
+  const municipalityName = municipality ? municipality.name : t('yourMunicipalityFallback');
+
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: t('helpTitle') }} />
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.sectionTitle}>{t('helpFaq')}</Text>
         <View style={styles.card}>
-          {FAQS.map((f, i) => (
+          {faqs.map((f, i) => (
             <View key={f.q}>
               <Pressable style={styles.row} onPress={() => toggle(`faq-${i}`)}>
                 <Text style={styles.rowLabel}>{f.q}</Text>
@@ -51,37 +54,27 @@ export default function HelpScreen() {
                 />
               </Pressable>
               {open === `faq-${i}` && <Text style={styles.answer}>{f.a}</Text>}
-              {i < FAQS.length - 1 && <View style={styles.divider} />}
+              {i < faqs.length - 1 && <View style={styles.divider} />}
             </View>
           ))}
         </View>
 
+        {/* Settings §6: "Centro de ayuda del sistema" and "Reportar un error o
+            fallo" are unified into a single section (this one), keeping the bug
+            report form and dropping the old descriptive paragraph entirely. */}
         <Text style={styles.sectionTitle}>{t('helpCenter')}</Text>
-        <Pressable style={styles.card} onPress={() => toggle('center')}>
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>{t('helpCenter')}</Text>
-            <Ionicons name={open === 'center' ? 'chevron-up' : 'chevron-down'} size={18} color={Colors.textMuted} />
-          </View>
-          {open === 'center' && (
-            <Text style={styles.answer}>
-              Consulta guías paso a paso sobre cómo usar ViaClara desde el apartado de ayuda de tu ayuntamiento.
-            </Text>
-          )}
-        </Pressable>
-
-        <Text style={styles.sectionTitle}>{t('helpReportBug')}</Text>
         <View style={styles.card}>
           <View style={{ paddingVertical: Spacing.md, gap: Spacing.sm }}>
             <TextInput
               style={styles.bugInput}
-              placeholder="Cuéntanos qué ha fallado…"
+              placeholder={t('bugPlaceholder')}
               placeholderTextColor={Colors.textMuted}
               value={bugText}
               onChangeText={setBugText}
               multiline
             />
             <Pressable style={styles.bugBtn} onPress={sendBug}>
-              <Text style={styles.bugBtnText}>{bugSent ? 'Enviado, ¡gracias!' : 'Enviar a los administradores'}</Text>
+              <Text style={styles.bugBtnText}>{bugSent ? t('bugSent') : t('bugSubmit')}</Text>
             </Pressable>
           </View>
         </View>
@@ -90,12 +83,13 @@ export default function HelpScreen() {
         <View style={styles.card}>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>
-              Ayuntamiento de {municipality ? municipality.name : 'tu municipio'}
+              {t('councilOf')} {municipalityName}
             </Text>
           </View>
           <Text style={styles.answer}>
-            Consulta el teléfono y correo de atención ciudadana en la web oficial del ayuntamiento de{' '}
-            {municipality ? municipality.name : 'tu municipio'}.
+            {contactBefore}
+            {municipalityName}
+            {contactAfter}
           </Text>
         </View>
 

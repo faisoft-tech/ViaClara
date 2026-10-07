@@ -1,28 +1,38 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MUNICIPALITIES } from '@/data/incidents';
 import { useStore } from '@/data/store';
+import { useCategoryLabel } from '@/i18n/labels';
+import { useT } from '@/i18n/useT';
 import { CATEGORY_CONFIG, IncidentCategory, Colors, Font, FontFamily, Radius, Shadow, Spacing } from '@/theme/tokens';
+
+// Reporting a new incident is a 3-step wizard: photo -> location -> category/description.
+type Step = 'photo' | 'location' | 'details';
 
 export default function ReportScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const t = useT();
+  const categoryLabel = useCategoryLabel();
   const { create, municipalityId } = useStore();
   const municipality = MUNICIPALITIES.find((m) => m.id === municipalityId) ?? MUNICIPALITIES[0];
 
-  const [photo, setPhoto] = useState(false);
+  const [step, setStep] = useState<Step>('photo');
+  const [photo, setPhoto] = useState<string | null>(null);
   const [category, setCategory] = useState<IncidentCategory | null>(null);
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('Paseo de San Cristóbal, Almuñécar');
-  const [locationOpen, setLocationOpen] = useState(false);
+  const [addressDraft, setAddressDraft] = useState(address);
   const [newId, setNewId] = useState<string | null>(null);
 
   function reset() {
-    setPhoto(false);
+    setStep('photo');
+    setPhoto(null);
     setCategory(null);
     setDescription('');
     setNewId(null);
@@ -33,161 +43,128 @@ export default function ReportScreen() {
     const title = description.trim()
       ? description.trim().split(' ').slice(0, 7).join(' ')
       : `${CATEGORY_CONFIG[category].label} en ${address.split(',')[0]}`;
-    const id = create({ title, category, description, address });
+    const id = create({ title, category, description, address, photos: [photo] });
     setNewId(id);
   }
 
-  const canSubmit = photo && !!category;
+  async function pickPhoto(source: 'camera' | 'library') {
+    const permission =
+      source === 'camera'
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert(t('labelPhoto'), t('photoPermissionDenied'));
+      return;
+    }
+    const options: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.6 };
+    const result =
+      source === 'camera'
+        ? await ImagePicker.launchCameraAsync(options)
+        : await ImagePicker.launchImageLibraryAsync(options);
+    if (!result.canceled && result.assets[0]) setPhoto(result.assets[0].uri);
+  }
+
+  // Settings §3: the primary button now goes back to Home (instead of resetting
+  // the form to report something else).
+  function goHome() {
+    reset();
+    router.push('/');
+  }
 
   // Confirmation screen
   if (newId) {
+    const [beforeId, afterIdRest] = t('reportSuccessBody').split('{id}');
+    const [afterId, afterMunicipality] = afterIdRest.split('{municipality}');
     return (
       <View style={styles.container}>
         <View style={styles.successWrap}>
           <View style={styles.successIcon}>
             <Ionicons name="checkmark" size={44} color={Colors.success} />
           </View>
-          <Text style={styles.successTitle}>¡Aviso enviado!</Text>
+          <Text style={styles.successTitle}>{t('reportSuccessTitle')}</Text>
           <Text style={styles.successBody}>
-            Tu aviso <Text style={styles.successStrong}>#{newId}</Text> fue enviado al
-            ayuntamiento de {municipality.name}. Te avisaremos cuando cambie de estado.
+            {beforeId}
+            <Text style={styles.successStrong}>#{newId}</Text>
+            {afterId}
+            {municipality.name}
+            {afterMunicipality}
           </Text>
-          {/* Settings §3: inverted visual hierarchy — encourages reporting more
-              instead of dwelling on the just-created report. */}
-          <Pressable style={styles.primaryBtn} onPress={reset}>
-            <Text style={styles.primaryText}>Reportar otra cosa</Text>
+          <Pressable style={styles.primaryBtn} onPress={goHome}>
+            <Text style={styles.primaryText}>{t('backToHome')}</Text>
           </Pressable>
           <Pressable style={styles.linkBtn} onPress={() => router.push(`/incident/${newId}`)}>
-            <Text style={styles.linkText}>Ver mi aviso</Text>
+            <Text style={styles.linkText}>{t('viewMyReport')}</Text>
           </Pressable>
         </View>
       </View>
     );
   }
 
-  return (
-    <View style={styles.container}>
-      <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
-        <Text style={styles.headerTitle}>Nuevo reporte</Text>
-        <Pressable onPress={() => router.push('/')} hitSlop={10}>
-          <Ionicons name="close" size={24} color={Colors.textMuted} />
-        </Pressable>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        <Text style={styles.label}>FOTO</Text>
-        <View style={[styles.photoBox, { marginBottom: photo ? Spacing.xl : Spacing.sm }]}>
-          <Ionicons name="camera" size={40} color={Colors.primary} />
-          {photo && (
-            <Pressable style={styles.photoPill} onPress={() => setPhoto(false)}>
-              <Ionicons name="camera" size={14} color={Colors.text} />
-              <Text style={styles.photoPillText}>Repetir foto</Text>
-            </Pressable>
-          )}
-        </View>
-        {!photo && (
-          <View style={styles.photoBtnRow}>
-            <Pressable style={styles.photoBtn} onPress={() => setPhoto(true)}>
-              <Ionicons name="camera-outline" size={18} color="#fff" />
-              <Text style={styles.photoBtnText}>Hacer foto</Text>
-            </Pressable>
-            <Pressable style={[styles.photoBtn, styles.photoBtnSoft]} onPress={() => setPhoto(true)}>
-              <Ionicons name="images-outline" size={18} color={Colors.primary} />
-              <Text style={[styles.photoBtnText, { color: Colors.primary }]}>Elegir de la galería</Text>
+  // Step 1: photo
+  if (step === 'photo') {
+    return (
+      <View style={styles.container}>
+        <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
+          <View style={styles.headerSide} />
+          <Text style={styles.headerTitle}>{t('reportHeaderTitle')}</Text>
+          <View style={[styles.headerSide, { alignItems: 'flex-end' }]}>
+            <Pressable onPress={() => router.push('/')} hitSlop={10}>
+              <Ionicons name="close" size={24} color={Colors.textMuted} />
             </Pressable>
           </View>
-        )}
+        </View>
 
-        <Text style={styles.label}>CATEGORÍA</Text>
-        <View style={styles.catRow}>
-          {(Object.keys(CATEGORY_CONFIG) as IncidentCategory[]).map((c) => {
-            const selected = category === c;
-            return (
-              <Pressable
-                key={c}
-                style={[styles.catChip, selected && styles.catChipSel]}
-                onPress={() => setCategory(c)}>
-                <Ionicons
-                  name={CATEGORY_CONFIG[c].icon as any}
-                  size={15}
-                  color={selected ? '#fff' : CATEGORY_CONFIG[c].color}
-                />
-                <Text style={[styles.catChipText, selected && { color: '#fff' }]}>{CATEGORY_CONFIG[c].label}</Text>
+        <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+          <Text style={styles.label}>{t('labelPhoto')}</Text>
+          <View style={[styles.photoBox, { marginBottom: photo ? Spacing.xl : Spacing.sm }]}>
+            {photo ? (
+              <Image source={{ uri: photo }} style={styles.photoPreview} />
+            ) : (
+              <Ionicons name="camera" size={40} color={Colors.primary} />
+            )}
+            {photo && (
+              <Pressable style={styles.photoPill} onPress={() => setPhoto(null)}>
+                <Ionicons name="camera" size={14} color={Colors.text} />
+                <Text style={styles.photoPillText}>{t('retakePhoto')}</Text>
               </Pressable>
-            );
-          })}
-        </View>
-
-        <Text style={styles.label}>DESCRIPCIÓN</Text>
-        <TextInput
-          style={styles.textarea}
-          placeholder="Cuéntanos qué está pasando y desde cuándo…"
-          placeholderTextColor={Colors.textMuted}
-          value={description}
-          onChangeText={setDescription}
-          multiline
-        />
-
-        <Text style={styles.label}>UBICACIÓN</Text>
-        <Pressable style={styles.locationRow} onPress={() => setLocationOpen(true)}>
-          <Ionicons name="location" size={20} color={Colors.primary} />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.locationAddress}>{address}</Text>
-            <Text style={styles.locationMuted}>{municipality.name} · detectado automáticamente</Text>
+            )}
           </View>
-          <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
-        </Pressable>
+          {!photo && (
+            <View style={styles.photoBtnRow}>
+              <Pressable style={styles.photoBtn} onPress={() => void pickPhoto('camera')}>
+                <Ionicons name="camera-outline" size={18} color="#fff" />
+                <Text style={styles.photoBtnText}>{t('takePhoto')}</Text>
+              </Pressable>
+              <Pressable style={[styles.photoBtn, styles.photoBtnSoft]} onPress={() => void pickPhoto('library')}>
+                <Ionicons name="images-outline" size={18} color={Colors.primary} />
+                <Text style={[styles.photoBtnText, { color: Colors.primary }]}>{t('pickFromGallery')}</Text>
+              </Pressable>
+            </View>
+          )}
 
-        <Pressable
-          style={[styles.submitBtn, !canSubmit && styles.submitBtnDisabled]}
-          disabled={!canSubmit}
-          onPress={submit}>
-          <Text style={styles.submitText}>Siguiente</Text>
-        </Pressable>
-      </ScrollView>
+          <Pressable
+            style={[styles.submitBtn, !photo && styles.submitBtnDisabled]}
+            disabled={!photo}
+            onPress={() => {
+              setAddressDraft(address);
+              setStep('location');
+            }}>
+            <Text style={styles.submitText}>{t('nextCta')}</Text>
+          </Pressable>
+        </ScrollView>
+      </View>
+    );
+  }
 
-      <LocationPickerModal
-        visible={locationOpen}
-        initialAddress={address}
-        municipality={municipality.name}
-        onClose={() => setLocationOpen(false)}
-        onConfirm={(addr) => {
-          setAddress(addr);
-          setLocationOpen(false);
-        }}
-      />
-    </View>
-  );
-}
-
-function LocationPickerModal({
-  visible,
-  initialAddress,
-  municipality,
-  onClose,
-  onConfirm,
-}: {
-  visible: boolean;
-  initialAddress: string;
-  municipality: string;
-  onClose: () => void;
-  onConfirm: (address: string) => void;
-}) {
-  const insets = useSafeAreaInsets();
-  const [draft, setDraft] = useState(initialAddress);
-
-  useEffect(() => {
-    if (visible) setDraft(initialAddress);
-  }, [visible, initialAddress]);
-
-  return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+  // Step 2: location — kept exactly as the existing location picker UI.
+  if (step === 'location') {
+    return (
       <View style={styles.pickerContainer}>
         <View style={[styles.pickerHeader, { paddingTop: insets.top + Spacing.sm }]}>
-          <Pressable onPress={onClose} hitSlop={10}>
+          <Pressable onPress={() => setStep('photo')} hitSlop={10}>
             <Ionicons name="chevron-back" size={22} color={Colors.text} />
           </Pressable>
-          <Text style={styles.pickerHeaderTitle}>Ubicación del problema</Text>
+          <Text style={styles.pickerHeaderTitle}>{t('locationPickerTitle')}</Text>
           <View style={{ width: 22 }} />
         </View>
 
@@ -213,32 +190,93 @@ function LocationPickerModal({
           <View style={styles.pickerHandle} />
           <View style={styles.pickerSearchRow}>
             <Ionicons name="search" size={16} color={Colors.textMuted} />
-            <Text style={styles.pickerSearchText}>Buscar en Google Maps</Text>
+            <Text style={styles.pickerSearchText}>{t('searchGoogleMaps')}</Text>
             <View style={styles.pickerSearchBtn}>
               <Ionicons name="navigate" size={14} color="#fff" />
             </View>
           </View>
 
           <View style={styles.pickerAddressCard}>
-            <TextInput style={styles.pickerAddressInput} value={draft} onChangeText={setDraft} multiline />
-            <Text style={styles.locationMuted}>{municipality} · detectado automáticamente</Text>
+            <TextInput style={styles.pickerAddressInput} value={addressDraft} onChangeText={setAddressDraft} multiline />
+            <Text style={styles.locationMuted}>{municipality.name} · {t('autoDetected')}</Text>
           </View>
 
-          <Text style={styles.pickerHint}>
-            ¿No conoces la ubicación exacta? Selecciónala en el mapa
-          </Text>
+          <Text style={styles.pickerHint}>{t('locationHint')}</Text>
 
-          <Pressable style={styles.pickerMyLocation} onPress={() => setDraft('Mi ubicación actual (GPS)')}>
+          <Pressable style={styles.pickerMyLocation} onPress={() => setAddressDraft('Mi ubicación actual (GPS)')}>
             <View style={styles.pickerRadio} />
-            <Text style={styles.pickerMyLocationText}>Mi ubicación</Text>
+            <Text style={styles.pickerMyLocationText}>{t('myLocation')}</Text>
           </Pressable>
 
-          <Pressable style={styles.submitBtn} onPress={() => onConfirm(draft)}>
-            <Text style={styles.submitText}>Confirmar ubicación</Text>
+          <Pressable
+            style={styles.submitBtn}
+            onPress={() => {
+              setAddress(addressDraft);
+              setStep('details');
+            }}>
+            <Text style={styles.submitText}>{t('confirmLocation')}</Text>
           </Pressable>
         </View>
       </View>
-    </Modal>
+    );
+  }
+
+  // Step 3: category and description, then send.
+  return (
+    <View style={styles.container}>
+      <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
+        <View style={styles.headerSide}>
+          <Pressable onPress={() => setStep('location')} hitSlop={10}>
+            <Ionicons name="chevron-back" size={22} color={Colors.text} />
+          </Pressable>
+        </View>
+        <Text style={styles.headerTitle}>{t('reportDetailsTitle')}</Text>
+        <View style={[styles.headerSide, { alignItems: 'flex-end' }]}>
+          <Pressable onPress={() => router.push('/')} hitSlop={10}>
+            <Ionicons name="close" size={24} color={Colors.textMuted} />
+          </Pressable>
+        </View>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+        <Text style={styles.label}>{t('labelCategory')}</Text>
+        <View style={styles.catRow}>
+          {(Object.keys(CATEGORY_CONFIG) as IncidentCategory[]).map((c) => {
+            const selected = category === c;
+            return (
+              <Pressable
+                key={c}
+                style={[styles.catChip, selected && styles.catChipSel]}
+                onPress={() => setCategory(c)}>
+                <Ionicons
+                  name={CATEGORY_CONFIG[c].icon as any}
+                  size={15}
+                  color={selected ? '#fff' : CATEGORY_CONFIG[c].color}
+                />
+                <Text style={[styles.catChipText, selected && { color: '#fff' }]}>{categoryLabel(c)}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <Text style={styles.label}>{t('labelDescription')}</Text>
+        <TextInput
+          style={styles.textarea}
+          placeholder={t('descriptionPlaceholder')}
+          placeholderTextColor={Colors.textMuted}
+          value={description}
+          onChangeText={setDescription}
+          multiline
+        />
+
+        <Pressable
+          style={[styles.submitBtn, !category && styles.submitBtnDisabled]}
+          disabled={!category}
+          onPress={submit}>
+          <Text style={styles.submitText}>{t('sendReportCta')}</Text>
+        </Pressable>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -254,6 +292,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
+  headerSide: { minWidth: 24 },
   headerTitle: { fontSize: Font.subtitle, fontFamily: FontFamily.bold, color: Colors.text },
   body: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
   label: {
@@ -270,7 +309,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
+  photoPreview: { ...StyleSheet.absoluteFillObject },
   photoPill: {
     position: 'absolute',
     right: 10,
@@ -321,17 +362,6 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     marginBottom: Spacing.xl,
   },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: Colors.background,
-    borderRadius: Radius.md,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: 14,
-    marginBottom: Spacing.md,
-  },
-  locationAddress: { fontSize: Font.body, fontFamily: FontFamily.medium, color: Colors.text },
   locationMuted: { fontSize: Font.small, fontFamily: FontFamily.regular, color: Colors.textMuted, marginTop: 2 },
   submitBtn: {
     marginTop: Spacing.lg,
@@ -388,7 +418,7 @@ const styles = StyleSheet.create({
   linkBtn: { padding: Spacing.sm },
   linkText: { color: Colors.textMuted, fontFamily: FontFamily.medium, fontSize: Font.small },
 
-  // Location picker
+  // Location picker (step 2), unchanged from before
   pickerContainer: { flex: 1, backgroundColor: Colors.surface },
   pickerHeader: {
     flexDirection: 'row',

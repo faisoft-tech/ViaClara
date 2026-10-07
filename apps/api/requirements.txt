@@ -1,0 +1,2 @@
+# Dependencias de runtime de las Lambdas. El runtime de AWS Lambda para
+# Python ya incluye boto3/botocore, así que este slice no añade nada más.

@@ -1,70 +1,65 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Incident } from '@/data/incidents';
+import { Incident, MUNICIPALITIES } from '@/data/incidents';
+import { useStore } from '@/data/store';
+import { useStatusLabel } from '@/i18n/labels';
+import { useT } from '@/i18n/useT';
 import { Colors, STATUS_CONFIG, Font, FontFamily, Radius, Spacing } from '@/theme/tokens';
 
-// Stylized (non-native) map for the demo: positions pins according to their
-// coordinates, normalized to the bounds of the set. Works in Expo Go without
-// native configuration. Replaced by react-native-maps in production.
+import { MapFrame } from './map/MapFrame';
+import type { MapPoint } from './map/mapHtml';
+
+// Interactive map (MapLibre + OpenFreeMap positron basemap) with one pin per
+// incident, colored by status. Tapping a pin opens a popup with the photo and
+// a button to the incident detail.
 export function IncidentsMap({ data }: { data: Incident[] }) {
   const router = useRouter();
-  const lats = data.map((d) => d.lat);
-  const lngs = data.map((d) => d.lng);
-  const minLat = Math.min(...lats);
-  const maxLat = Math.max(...lats);
-  const minLng = Math.min(...lngs);
-  const maxLng = Math.max(...lngs);
-  const spanLat = maxLat - minLat || 1;
-  const spanLng = maxLng - minLng || 1;
+  const t = useT();
+  const statusLabel = useStatusLabel();
+  const { municipalityId } = useStore();
+  const municipality = MUNICIPALITIES.find((m) => m.id === municipalityId) ?? MUNICIPALITIES[0];
+
+  const points = useMemo<MapPoint[]>(
+    () =>
+      data.map((inc) => ({
+        id: inc.id,
+        lat: inc.lat,
+        lng: inc.lng,
+        title: inc.title,
+        address: inc.address,
+        color: STATUS_CONFIG[inc.status].color,
+        statusLabel: statusLabel(inc.status),
+        // Local file URIs can't be loaded from inside the map page.
+        photo: inc.photos.find((uri) => uri.startsWith('https://')),
+      })),
+    [data, statusLabel],
+  );
+
+  const onOpen = useCallback((id: string) => router.push(`/incident/${id}`), [router]);
 
   return (
     <View style={styles.map}>
-      {/* Decorative grid */}
-      {[0.25, 0.5, 0.75].map((p) => (
-        <View key={`h${p}`} style={[styles.gridH, { top: `${p * 100}%` }]} />
-      ))}
-      {[0.25, 0.5, 0.75].map((p) => (
-        <View key={`v${p}`} style={[styles.gridV, { left: `${p * 100}%` }]} />
-      ))}
-
-      <View style={styles.legendBadge}>
+      <MapFrame points={points} center={municipality.center} openLabel={t('mapOpenReport')} onOpen={onOpen} />
+      <View style={styles.legendBadge} pointerEvents="none">
         <Ionicons name="map" size={14} color={Colors.primary} />
-        <Text style={styles.legendText}>Vista mapa · {data.length} avisos</Text>
+        <Text style={styles.legendText}>{t('mapLegend').replace('{n}', String(data.length))}</Text>
       </View>
-
-      {data.map((inc) => {
-        const x = 8 + ((inc.lng - minLng) / spanLng) * 84;
-        const y = 88 - ((inc.lat - minLat) / spanLat) * 76;
-        return (
-          <Pressable
-            key={inc.id}
-            onPress={() => router.push(`/incident/${inc.id}`)}
-            style={[styles.pin, { left: `${x}%`, top: `${y}%` }]}
-            hitSlop={8}>
-            <View style={[styles.pinHead, { backgroundColor: STATUS_CONFIG[inc.status].color }]}>
-              <Ionicons name={STATUS_CONFIG[inc.status].icon as any} size={14} color="#fff" />
-            </View>
-            <View style={[styles.pinTail, { borderTopColor: STATUS_CONFIG[inc.status].color }]} />
-          </Pressable>
-        );
-      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   map: {
-    height: 380,
-    backgroundColor: '#E9F4F3',
+    height: 460,
+    backgroundColor: '#F2F3F0',
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: Colors.border,
     overflow: 'hidden',
   },
-  gridH: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: '#FFFFFF55' },
-  gridV: { position: 'absolute', top: 0, bottom: 0, width: 1, backgroundColor: '#FFFFFF55' },
   legendBadge: {
     position: 'absolute',
     top: Spacing.md,
@@ -76,27 +71,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: Radius.pill,
-    zIndex: 5,
   },
   legendText: { fontSize: Font.small, fontFamily: FontFamily.semibold, color: Colors.text },
-  pin: { position: 'absolute', alignItems: 'center', width: 34, marginLeft: -17 },
-  pinHead: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-  pinTail: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 5,
-    borderRightWidth: 5,
-    borderTopWidth: 8,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    marginTop: -1,
-  },
 });

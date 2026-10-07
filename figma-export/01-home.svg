@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" fill="none">
+  <!-- ViaClara · Home (map view) -->
+  <rect id="frame-bg" x="0" y="0" width="390" height="844" fill="#FAFAFC"/>
+
+  <!-- ================= HERO ================= -->
+  <g id="hero">
+    <path id="hero-bg" d="M0 0 H390 V126 Q390 150 366 150 H24 Q0 150 0 126 Z" fill="#3D69FE"/>
+
+    <!-- status bar (white on blue) -->
+    <g id="status-bar">
+      <text x="24" y="32" font-family="Poppins" font-size="15" font-weight="700" fill="#FFFFFF">9:41</text>
+      <g id="status-icons" fill="#FFFFFF">
+        <rect x="322" y="22" width="3" height="4" rx="1"/>
+        <rect x="327" y="20" width="3" height="6" rx="1"/>
+        <rect x="332" y="17" width="3" height="9" rx="1"/>
+        <rect x="337" y="14" width="3" height="12" rx="1"/>
+        <path d="M347 17 a7 7 0 0 1 10 0 l-1.4 1.4 a5 5 0 0 0 -7.2 0 Z"/>
+        <circle cx="352" cy="23" r="1.6"/>
+        <rect x="362" y="15" width="18" height="10" rx="2.5" fill="none" stroke="#FFFFFF" stroke-width="1.4"/>
+        <rect x="364" y="17" width="12" height="6" rx="1" fill="#FFFFFF"/>
+        <rect x="380.5" y="18" width="1.6" height="4" rx="0.8" fill="#FFFFFF"/>
+      </g>
+    </g>
+
+    <!-- greeting + location -->
+    <g id="hero-greeting-block">
+      <text x="24" y="82" font-family="Poppins" font-size="12" font-weight="400" fill="#FFFFFF" fill-opacity="0.85">Hola 👋</text>
+      <g id="hero-location-row">
+        <!-- location pin -->
+        <path d="M35 96 c-4 0-7 3-7 7 c0 5 7 12 7 12 c0 0 7-7 7-12 c0-4-3-7-7-7 Z" fill="#FFFFFF"/>
+        <circle cx="35" cy="103" r="2.6" fill="#3D69FE"/>
+        <text x="47" y="110" font-family="Poppins" font-size="16" font-weight="600" fill="#FFFFFF">Almuñécar</text>
+        <path d="M138 105 l4 4 l4 -4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </g>
+    </g>
+
+    <!-- avatar + notification dot -->
+    <g id="hero-avatar">
+      <circle cx="350" cy="96" r="20" fill="#12B3AE" stroke="#FFFFFF" stroke-opacity="0.8" stroke-width="2"/>
+      <circle cx="350" cy="90" r="6.5" fill="#FFFFFF"/>
+      <path d="M338 106 a12 8 0 0 1 24 0 Z" fill="#FFFFFF"/>
+      <circle id="avatar-badge" cx="368" cy="79" r="6" fill="#F24545" stroke="#3D69FE" stroke-width="2"/>
+    </g>
+  </g>
+
+  <!-- ================= SEGMENTED CONTROL ================= -->
+  <g id="segmented-control">
+    <rect x="16" y="162" width="358" height="42" rx="21" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+    <!-- Lista (inactive) -->
+    <g id="seg-list">
+      <g stroke="#7D7E88" stroke-width="1.8" stroke-linecap="round">
+        <line x1="83" y1="179" x2="83" y2="179"/>
+        <line x1="86" y1="179" x2="98" y2="179"/>
+        <line x1="86" y1="183" x2="98" y2="183"/>
+        <line x1="86" y1="187" x2="98" y2="187"/>
+      </g>
+      <circle cx="83" cy="179" r="1.2" fill="#7D7E88"/>
+      <circle cx="83" cy="183" r="1.2" fill="#7D7E88"/>
+      <circle cx="83" cy="187" r="1.2" fill="#7D7E88"/>
+      <text x="106" y="188" font-family="Poppins" font-size="14" font-weight="600" fill="#7D7E88">Lista</text>
+    </g>
+    <!-- Mapa (active) -->
+    <g id="seg-map">
+      <rect x="197" y="166" width="173" height="34" rx="17" fill="#3D69FE"/>
+      <path d="M260 176 l8 -3 l8 3 l8 -3 v14 l-8 3 l-8 -3 l-8 3 Z" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linejoin="round"/>
+      <path d="M268 173 v14 M276 176 v14" stroke="#FFFFFF" stroke-width="1.7"/>
+      <text x="290" y="188" font-family="Poppins" font-size="14" font-weight="600" fill="#FFFFFF">Mapa</text>
+    </g>
+  </g>
+
+  <!-- ================= FILTERS ROW ================= -->
+  <g id="filters-row">
+    <g id="filter-status">
+      <rect x="16" y="212" width="98" height="34" rx="17" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <text x="30" y="234" font-family="Epilogue" font-size="12" font-weight="600" fill="#17194B">Estado</text>
+      <path d="M92 227 l4 4 l4 -4" stroke="#7D7E88" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </g>
+    <g id="filter-category">
+      <rect x="122" y="212" width="112" height="34" rx="17" fill="#FFFFFF" stroke="#E7E7E7" stroke-width="1"/>
+      <text x="136" y="234" font-family="Epilogue" font-size="12" font-weight="600" fill="#17194B">Categoría</text>
+      <path d="M212 227 l4 4 l4 -4" stroke="#7D7E88" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </g>
+  </g>
+
+  <!-- ================= MAP ================= -->
+  <g id="incidents-map">
+    <rect id="map-bg" x="16" y="262" width="358" height="380" rx="16" fill="#E9F4F3" stroke="#EEEEEE" stroke-width="1"/>
+    <!-- decorative grid -->
+    <g id="map-grid" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="1">
+      <line x1="16" y1="357" x2="374" y2="357"/>
+      <line x1="16" y1="452" x2="374" y2="452"/>
+      <line x1="16" y1="547" x2="374" y2="547"/>
+      <line x1="105.5" y1="262" x2="105.5" y2="642"/>
+      <line x1="195" y1="262" x2="195" y2="642"/>
+      <line x1="284.5" y1="262" x2="284.5" y2="642"/>
+    </g>
+
+    <!-- legend badge -->
+    <g id="map-legend-badge">
+      <rect x="28" y="274" width="176" height="28" rx="14" fill="#FFFFFF"/>
+      <path d="M40 283 l6 -2 l6 2 l6 -2 v11 l-6 2 l-6 -2 l-6 2 Z" fill="none" stroke="#3D69FE" stroke-width="1.4" stroke-linejoin="round"/>
+      <path d="M46 281 v11 M52 283 v11" stroke="#3D69FE" stroke-width="1.4"/>
+      <text x="66" y="292" font-family="Epilogue" font-size="12" font-weight="600" fill="#17194B">3 avisos en el mapa</text>
+    </g>
+
+    <!-- pins (positioned via map normalization) -->
+    <g id="pin-inc-001">
+      <!-- in_progress · warning -->
+      <path d="M345.4 340 l-6 -9 h12 Z" fill="#F2A415"/>
+      <circle cx="345.4" cy="324.6" r="17" fill="#F2A415" stroke="#FFFFFF" stroke-width="2"/>
+      <path d="M341 320 l-3 3 l3 3 M350 320 l3 3 l-3 3 M347 318 l-4 12" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </g>
+    <g id="pin-inc-003">
+      <!-- resolved · success -->
+      <path d="M223.3 434 l-6 -9 h12 Z" fill="#00A854"/>
+      <circle cx="223.3" cy="418.8" r="17" fill="#00A854" stroke="#FFFFFF" stroke-width="2"/>
+      <path d="M216.5 419 l4.5 4.5 l8.5 -9" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </g>
+    <g id="pin-inc-002">
+      <!-- open · danger -->
+      <path d="M44.6 628.6 l-6 -9 h12 Z" fill="#F24545"/>
+      <circle cx="44.6" cy="613.4" r="17" fill="#F24545" stroke="#FFFFFF" stroke-width="2"/>
+      <path d="M44.6 606 v9" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="44.6" cy="620" r="1.6" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <!-- ================= TAB BAR ================= -->
+  <g id="tab-bar">
+    <rect x="0" y="756" width="390" height="88" fill="#FFFFFF"/>
+    <line x1="0" y1="756" x2="390" y2="756" stroke="#EEEEEE" stroke-width="1"/>
+
+    <!-- Home (active) -->
+    <g id="tab-home">
+      <path d="M55 785 l10 -9 l10 9 v13 h-6 v-8 h-8 v8 h-6 Z" fill="none" stroke="#3D69FE" stroke-width="2" stroke-linejoin="round"/>
+      <text x="65" y="815" font-family="Epilogue" font-size="12.5" font-weight="600" fill="#3D69FE" text-anchor="middle">Inicio</text>
+    </g>
+
+    <!-- center + button (elevated) -->
+    <g id="tab-center">
+      <circle cx="195" cy="760" r="26" fill="#3D69FE"/>
+      <path d="M195 749 v22 M184 760 h22" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+    <!-- Mis avisos (inactive) -->
+    <g id="tab-reports">
+      <g stroke="#7D7E88" stroke-width="2" stroke-linecap="round">
+        <line x1="320" y1="778" x2="335" y2="778"/>
+        <line x1="320" y1="784" x2="335" y2="784"/>
+        <line x1="320" y1="790" x2="335" y2="790"/>
+      </g>
+      <circle cx="316" cy="778" r="1.4" fill="#7D7E88"/>
+      <circle cx="316" cy="784" r="1.4" fill="#7D7E88"/>
+      <circle cx="316" cy="790" r="1.4" fill="#7D7E88"/>
+      <text x="327" y="815" font-family="Epilogue" font-size="12.5" font-weight="600" fill="#7D7E88" text-anchor="middle">Mis avisos</text>
+    </g>
+  </g>
+</svg>

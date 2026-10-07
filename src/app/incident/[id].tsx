@@ -1,17 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
 import {
+  Alert,
   findNodeHandle,
+  Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   Share,
   StyleSheet,
   Text,
   TextInput,
   UIManager,
+  useWindowDimensions,
   View,
 } from 'react-native';
 
@@ -19,12 +24,14 @@ import { SignupSheet } from '@/components/SignupSheet';
 import { StatusBadge } from '@/components/StatusBadge';
 import { MUNICIPALITIES } from '@/data/incidents';
 import { useStore } from '@/data/store';
+import { useCategoryLabel, useStatusLabel } from '@/i18n/labels';
+import { useT } from '@/i18n/useT';
 import {
   CATEGORY_CONFIG,
   Colors,
   Font,
   FontFamily,
-  IncidentStatus,
+  IncidentCategory,
   Radius,
   Shadow,
   Spacing,
@@ -39,21 +46,17 @@ function isAuthorNavigable(name: string) {
   return name !== 'Tú' && !name.toLowerCase().includes('ayuntamiento');
 }
 
-// The "declined" track is an alternative terminal branch that can skip
-// intermediate steps of the main track (e.g. "in_progress"). The segment of
-// the timeline representing that skip is drawn dashed instead of solid.
-function isSkippedSegment(current: IncidentStatus, next: IncidentStatus) {
-  if (next !== 'declined') return false;
-  const idx = STATUS_WORKFLOW_ORDER.indexOf(current);
-  return idx >= 0 && idx < STATUS_WORKFLOW_ORDER.length - 2;
-}
-
 export default function IncidentDetailScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const t = useT();
+  const categoryLabel = useCategoryLabel();
+  const statusLabel = useStatusLabel();
   const {
     incidents,
     isRegistered,
+    publicName,
     login,
     toggleLike,
     toggleWatch,
@@ -61,20 +64,53 @@ export default function IncidentDetailScreen() {
     addComment,
     verifyResolution,
     toggleCommentLike,
+    updateIncident,
+    deleteIncident,
+    refreshIncident,
   } = useStore();
   const inc = incidents.find((i) => i.id === id);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const reload = useCallback(async () => {
+    if (!id) return;
+    setRefreshing(true);
+    await refreshIncident(id);
+    setRefreshing(false);
+  }, [id, refreshIncident]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload]),
+  );
 
   const [text, setText] = useState('');
   const [pending, setPending] = useState<null | (() => void)>(null);
   const [reason, setReason] = useState<string>();
   const [reactivationDismissed, setReactivationDismissed] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editCategory, setEditCategory] = useState<IncidentCategory | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   const commentsRef = useRef<View>(null);
+
+  const sortedComments = useMemo(() => {
+    if (!inc) return [];
+    // Settings §4: comments sorted by most "likes" first; on a tie, most recent
+    // first (the array is append-only, so a higher index means more recent).
+    return inc.comments
+      .map((c, idx) => ({ c, idx }))
+      .sort((a, b) => b.c.likes - a.c.likes || b.idx - a.idx)
+      .map(({ c }) => c);
+  }, [inc]);
 
   if (!inc) {
     return (
       <View style={styles.center}>
-        <Text style={styles.muted}>Aviso no encontrado.</Text>
+        <Stack.Screen options={{ title: t('incidentDetailTitle'), headerBackTitle: t('backCta') }} />
+        <Text style={styles.muted}>{refreshing ? '…' : t('notFoundIncident')}</Text>
       </View>
     );
   }
@@ -93,13 +129,13 @@ export default function IncidentDetailScreen() {
 
   function onShare() {
     Share.share({
-      message: `${inc!.title} — síguelo en ViaClara (${inc!.address}, Almuñécar)`,
+      message: t('shareMessage').replace('{title}', inc!.title).replace('{address}', inc!.address),
     });
   }
 
   function onSendComment() {
     if (!text.trim()) return;
-    guard('Para comentar necesitas una cuenta.', () => {
+    guard(t('reasonComment'), () => {
       addComment(inc!.id, text.trim());
       setText('');
     });
@@ -127,20 +163,73 @@ export default function IncidentDetailScreen() {
     router.push({ pathname: '/user/[name]', params: { name } });
   }
 
+  // Settings §4: three-dot menu (edit/delete), only for the incident's own author.
+  function openEdit() {
+    setEditTitle(inc!.title);
+    setEditDescription(inc!.description);
+    setEditCategory(inc!.category);
+    setMenuOpen(false);
+    setEditOpen(true);
+  }
+
+  function saveEdit() {
+    if (!editCategory || !editTitle.trim()) return;
+    updateIncident(inc!.id, {
+      title: editTitle.trim(),
+      description: editDescription.trim(),
+      category: editCategory,
+    });
+    setEditOpen(false);
+  }
+
+  function confirmDelete() {
+    setMenuOpen(false);
+    Alert.alert(t('deleteConfirmTitle'), t('deleteConfirmBody'), [
+      { text: t('menuCancel'), style: 'cancel' },
+      {
+        text: t('deleteConfirmDelete'),
+        style: 'destructive',
+        onPress: () => {
+          deleteIncident(inc!.id);
+          router.replace('/');
+        },
+      },
+    ]);
+  }
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={90}>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        {/* Main report image (placeholder: the demo doesn't upload real photos) */}
-        <View style={styles.hero}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void reload()} />}
+      >
+        {/* Report photos (swipe between them), or a plain header without photos */}
+        <View style={[styles.hero, inc.photos.length > 0 && styles.heroWithPhoto]}>
+          {inc.photos.length > 0 && (
+            <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={StyleSheet.absoluteFill}>
+              {inc.photos.map((uri) => (
+                <Image key={uri} source={{ uri }} style={[styles.heroPhoto, { width }]} />
+              ))}
+            </ScrollView>
+          )}
+          {inc.photos.length > 0 && <View style={styles.heroShade} pointerEvents="none" />}
           <View style={styles.heroTopRow}>
             <Pressable onPress={() => router.back()} hitSlop={10}>
               <Ionicons name="chevron-back" size={22} color="#fff" />
             </Pressable>
-            <Ionicons name="ellipsis-vertical" size={20} color="#fff" />
+            {/* Settings §4: the three-dot menu (edit/delete) only shows for the
+                incident's own author; other users see no action here at all. */}
+            {inc.isMine && (
+              <Pressable onPress={() => setMenuOpen(true)} hitSlop={10}>
+                <Ionicons name="ellipsis-vertical" size={20} color="#fff" />
+              </Pressable>
+            )}
           </View>
           <View style={styles.heroCatBadge}>
             <Ionicons name={cat.icon as any} size={22} color={cat.color} />
@@ -153,7 +242,7 @@ export default function IncidentDetailScreen() {
             {inc.isMine && (
               <View style={styles.mineTag}>
                 <Ionicons name="person" size={13} color={Colors.primary} />
-                <Text style={styles.mineText}>Tu aviso</Text>
+                <Text style={styles.mineText}>{t('mineTag')}</Text>
               </View>
             )}
             <Text style={styles.title}>{inc.title}</Text>
@@ -193,7 +282,7 @@ export default function IncidentDetailScreen() {
             <View style={styles.statsRow}>
               <Pressable
                 style={styles.statItem}
-                onPress={() => guard('Para apoyar avisos necesitas una cuenta.', () => toggleLike(inc.id))}>
+                onPress={() => guard(t('reasonLike'), () => toggleLike(inc.id))}>
                 <Ionicons
                   name={inc.liked ? 'heart' : 'heart-outline'}
                   size={17}
@@ -204,58 +293,66 @@ export default function IncidentDetailScreen() {
               {inc.status !== 'declined' && (
                 <Pressable
                   style={styles.statItem}
-                  onPress={() => guard('Para seguir avisos necesitas una cuenta.', () => toggleWatch(inc.id))}>
+                  onPress={() => guard(t('reasonWatch'), () => toggleWatch(inc.id))}>
                   <Ionicons
                     name={inc.watching ? 'notifications' : 'notifications-outline'}
                     size={16}
                     color={inc.watching ? Colors.primary : Colors.textMuted}
                   />
                   <Text style={[styles.statText, inc.watching && { color: Colors.primary }]}>
-                    {inc.watching ? 'Siguiendo' : 'Seguir'}
+                    {inc.watching ? t('statFollowing') : t('statFollow')}
                   </Text>
                 </Pressable>
               )}
               <Pressable style={styles.statItem} onPress={goToComments}>
                 <Ionicons name="chatbubble-outline" size={16} color={Colors.textMuted} />
-                <Text style={styles.statText}>{inc.comments.length}</Text>
+                <Text style={styles.statText}>{inc.commentsCount}</Text>
               </Pressable>
               <Pressable style={[styles.statItem, styles.statItemEnd]} onPress={onShare}>
                 <Ionicons name="share-social-outline" size={16} color={Colors.textMuted} />
-                <Text style={styles.statText}>Compartir</Text>
+                <Text style={styles.statText}>{t('statShare')}</Text>
               </Pressable>
             </View>
           </View>
 
-          {/* Tracking: vertical timeline */}
+          {/* Tracking: horizontal flow of the main track */}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Seguimiento</Text>
-            {inc.history.map((entry, i) => {
-              const s = STATUS_CONFIG[entry.status as IncidentStatus];
-              const isLast = i === inc.history.length - 1;
-              const next = inc.history[i + 1]?.status as IncidentStatus | undefined;
-              const skipped = !isLast && next ? isSkippedSegment(entry.status as IncidentStatus, next) : false;
-              return (
-                <View key={`${entry.status}-${i}`} style={styles.timelineRow}>
-                  <View style={styles.timelineDotCol}>
-                    <View style={[styles.timelineDot, { backgroundColor: s.color }]} />
-                    {!isLast &&
-                      (skipped ? (
-                        <View style={styles.timelineLineDashed} />
-                      ) : (
-                        <View style={[styles.timelineLine, { backgroundColor: s.color }]} />
-                      ))}
-                  </View>
-                  <View style={{ paddingBottom: isLast ? 0 : Spacing.lg }}>
-                    <Text style={styles.timelineLabel}>
-                      {s.label}
-                      {entry.status === 'declined' ? ' · cierre alternativo' : ''}
-                    </Text>
-                    <Text style={styles.timelineDate}>{entry.date}</Text>
-                    {entry.note && <Text style={styles.timelineNote}>{entry.note}</Text>}
-                  </View>
-                </View>
-              );
-            })}
+            <Text style={styles.cardTitle}>{t('trackingTitle')}</Text>
+            <View style={styles.hFlowRow}>
+              {STATUS_WORKFLOW_ORDER.map((step, i) => {
+                const reached = inc.history.some((h) => h.status === step);
+                const isCurrent = inc.status === step;
+                const cfg = STATUS_CONFIG[step];
+                const nextReached =
+                  i < STATUS_WORKFLOW_ORDER.length - 1 &&
+                  inc.history.some((h) => h.status === STATUS_WORKFLOW_ORDER[i + 1]);
+                return (
+                  <Fragment key={step}>
+                    <View style={styles.hFlowStepCol}>
+                      <View
+                        style={[
+                          styles.hFlowDot,
+                          reached && { backgroundColor: cfg.color },
+                          isCurrent && styles.hFlowDotCurrent,
+                        ]}>
+                        {reached && <Ionicons name="checkmark" size={14} color="#fff" />}
+                      </View>
+                      <Text
+                        style={[styles.hFlowLabel, reached && styles.hFlowLabelReached]}
+                        numberOfLines={2}>
+                        {statusLabel(step)}
+                      </Text>
+                    </View>
+                    {i < STATUS_WORKFLOW_ORDER.length - 1 && (
+                      <View style={[styles.hFlowLine, nextReached && { backgroundColor: cfg.color }]} />
+                    )}
+                  </Fragment>
+                );
+              })}
+            </View>
+            {inc.history[inc.history.length - 1]?.note && (
+              <Text style={styles.hFlowNote}>{inc.history[inc.history.length - 1].note}</Text>
+            )}
           </View>
 
           {/* RF-013 / CU-004: citizen verification of the closure */}
@@ -274,27 +371,24 @@ export default function IncidentDetailScreen() {
                       { color: inc.verification.result === 'verified' ? Colors.success : Colors.danger },
                     ]}>
                     {inc.verification.result === 'verified'
-                      ? `Verificado el ${inc.verification.date}`
-                      : 'Marcado como no resuelto, reabierto'}
+                      ? `${t('verifiedOn')} ${inc.verification.date}`
+                      : t('reopenedNotResolved')}
                   </Text>
                 </View>
               ) : (
                 <View style={styles.verificationCard}>
-                  <Text style={styles.verificationTitle}>¿Se resolvió correctamente?</Text>
-                  <Text style={styles.verificationBody}>
-                    El ayuntamiento marcó este aviso como resuelto. Confirma si el problema
-                    realmente desapareció.
-                  </Text>
+                  <Text style={styles.verificationTitle}>{t('verificationQuestion')}</Text>
+                  <Text style={styles.verificationBody}>{t('verificationBody')}</Text>
                   <View style={styles.verificationActions}>
                     <Pressable
                       style={styles.verificationBtnFilled}
                       onPress={() => verifyResolution(inc.id, 'verified')}>
-                      <Text style={styles.verificationBtnFilledText}>Sí, confirmar</Text>
+                      <Text style={styles.verificationBtnFilledText}>{t('verificationYes')}</Text>
                     </Pressable>
                     <Pressable
                       style={styles.verificationBtnOutline}
                       onPress={() => verifyResolution(inc.id, 'not_resolved')}>
-                      <Text style={styles.verificationBtnOutlineText}>No, reabrir</Text>
+                      <Text style={styles.verificationBtnOutlineText}>{t('verificationNo')}</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -307,21 +401,18 @@ export default function IncidentDetailScreen() {
               correctamente?". reopen() now really reopens the report. */}
           {inc.status === 'declined' && !reactivationDismissed && (
             <View style={styles.reactivateCard}>
-              <Text style={styles.reactivateTitle}>¿Sigue existiendo el problema?</Text>
+              <Text style={styles.reactivateTitle}>{t('reactivateQuestion')}</Text>
               <Text style={styles.reactivateBody}>
-                {inc.likes} vecinos ya han apoyado este aviso. Si el problema continúa, pide
-                que se reactive.
+                {t('reactivateBody').replace('{likes}', String(inc.likes))}
               </Text>
               <View style={styles.verificationActions}>
                 <Pressable
                   style={styles.reactivateBtnFilled}
-                  onPress={() =>
-                    guard('Para pedir la reactivación necesitas una cuenta.', () => reopen(inc.id))
-                  }>
-                  <Text style={styles.verificationBtnFilledText}>Sí, sigue el problema</Text>
+                  onPress={() => guard(t('reasonReactivate'), () => reopen(inc.id))}>
+                  <Text style={styles.verificationBtnFilledText}>{t('reactivateYes')}</Text>
                 </Pressable>
                 <Pressable style={styles.reactivateBtnOutline} onPress={() => setReactivationDismissed(true)}>
-                  <Text style={styles.reactivateBtnOutlineText}>No, ya no</Text>
+                  <Text style={styles.reactivateBtnOutlineText}>{t('reactivateNo')}</Text>
                 </Pressable>
               </View>
             </View>
@@ -329,11 +420,9 @@ export default function IncidentDetailScreen() {
 
           {/* Comments, YouTube-like structure: avatar + author + date + text + like */}
           <View style={styles.card} ref={commentsRef}>
-            <Text style={styles.cardTitle}>Comentarios ({inc.comments.length})</Text>
-            {inc.comments.length === 0 && (
-              <Text style={styles.muted}>Sé el primero en comentar.</Text>
-            )}
-            {inc.comments.map((c) => (
+            <Text style={styles.cardTitle}>{t('commentsTitle')} ({inc.commentsCount})</Text>
+            {inc.comments.length === 0 && <Text style={styles.muted}>{t('firstComment')}</Text>}
+            {sortedComments.map((c) => (
               <View
                 key={c.id}
                 style={[styles.comment, c.isMunicipality && styles.commentCouncil]}>
@@ -364,11 +453,7 @@ export default function IncidentDetailScreen() {
                 <Text style={styles.commentText}>{c.text}</Text>
                 <Pressable
                   style={styles.commentLike}
-                  onPress={() =>
-                    guard('Para valorar comentarios necesitas una cuenta.', () =>
-                      toggleCommentLike(inc.id, c.id)
-                    )
-                  }>
+                  onPress={() => guard(t('reasonCommentLike'), () => toggleCommentLike(inc.id, c.id))}>
                   <Ionicons
                     name={c.likedByMe ? 'heart' : 'heart-outline'}
                     size={16}
@@ -392,7 +477,7 @@ export default function IncidentDetailScreen() {
       <View style={styles.inputBar}>
         <TextInput
           style={styles.input}
-          placeholder="Escribe un comentario…"
+          placeholder={t('commentPlaceholder')}
           placeholderTextColor={Colors.textMuted}
           value={text}
           onChangeText={setText}
@@ -406,13 +491,86 @@ export default function IncidentDetailScreen() {
       <SignupSheet
         visible={pending !== null}
         reason={reason}
+        knownName={publicName}
         onClose={() => setPending(null)}
-        onRegister={(name) => {
-          login(name);
+        onRegister={(name, phoneNumber) => {
+          login(name, phoneNumber);
           pending?.();
           setPending(null);
         }}
       />
+
+      {/* Settings §4: three-dot action sheet — edit / delete (own incidents only) */}
+      <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
+        <Pressable style={styles.menuBackdrop} onPress={() => setMenuOpen(false)}>
+          <Pressable style={styles.menuSheet} onPress={() => {}}>
+            <Pressable style={styles.menuRow} onPress={openEdit}>
+              <Ionicons name="create-outline" size={20} color={Colors.text} />
+              <Text style={styles.menuRowText}>{t('menuEdit')}</Text>
+            </Pressable>
+            <View style={styles.menuDivider} />
+            <Pressable style={styles.menuRow} onPress={confirmDelete}>
+              <Ionicons name="trash-outline" size={20} color={Colors.danger} />
+              <Text style={[styles.menuRowText, { color: Colors.danger }]}>{t('menuDelete')}</Text>
+            </Pressable>
+            <View style={styles.menuDivider} />
+            <Pressable style={styles.menuRow} onPress={() => setMenuOpen(false)}>
+              <Text style={[styles.menuRowText, { textAlign: 'center', flex: 1, color: Colors.textMuted }]}>
+                {t('menuCancel')}
+              </Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Settings §4: edit modal — title, category, description */}
+      <Modal visible={editOpen} animationType="slide" onRequestClose={() => setEditOpen(false)}>
+        <View style={styles.editContainer}>
+          <View style={styles.editHeader}>
+            <Pressable onPress={() => setEditOpen(false)} hitSlop={10}>
+              <Ionicons name="chevron-back" size={22} color={Colors.text} />
+            </Pressable>
+            <Text style={styles.editHeaderTitle}>{t('editModalTitle')}</Text>
+            <View style={{ width: 22 }} />
+          </View>
+          <ScrollView contentContainerStyle={styles.editBody}>
+            <Text style={styles.label}>{t('labelCategory')}</Text>
+            <View style={styles.catRow}>
+              {(Object.keys(CATEGORY_CONFIG) as IncidentCategory[]).map((c) => {
+                const selected = editCategory === c;
+                return (
+                  <Pressable
+                    key={c}
+                    style={[styles.catChip, selected && styles.catChipSel]}
+                    onPress={() => setEditCategory(c)}>
+                    <Ionicons
+                      name={CATEGORY_CONFIG[c].icon as any}
+                      size={15}
+                      color={selected ? '#fff' : CATEGORY_CONFIG[c].color}
+                    />
+                    <Text style={[styles.catChipText, selected && { color: '#fff' }]}>{categoryLabel(c)}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Text style={styles.label}>{t('labelDescription')}</Text>
+            <TextInput
+              style={styles.editTitleInput}
+              value={editTitle}
+              onChangeText={setEditTitle}
+            />
+            <TextInput
+              style={styles.editDescriptionInput}
+              value={editDescription}
+              onChangeText={setEditDescription}
+              multiline
+            />
+            <Pressable style={styles.submitBtn} onPress={saveEdit}>
+              <Text style={styles.submitBtnText}>{t('saveChanges')}</Text>
+            </Pressable>
+          </ScrollView>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -421,6 +579,9 @@ const styles = StyleSheet.create({
   scroll: { backgroundColor: Colors.background, paddingBottom: Spacing.xl },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   hero: { height: 150, backgroundColor: Colors.primary },
+  heroWithPhoto: { height: 240 },
+  heroPhoto: { height: '100%' },
+  heroShade: { position: 'absolute', top: 0, left: 0, right: 0, height: 90, backgroundColor: 'rgba(0,0,0,0.25)' },
   heroTopRow: {
     position: 'absolute',
     top: 44,
@@ -500,21 +661,32 @@ const styles = StyleSheet.create({
   statItemEnd: { marginLeft: 'auto' },
   statText: { fontSize: Font.small, fontFamily: FontFamily.medium, color: Colors.textMuted },
   cardTitle: { fontSize: Font.subtitle, fontFamily: FontFamily.bold, color: Colors.text, marginBottom: Spacing.lg },
-  timelineRow: { flexDirection: 'row', gap: Spacing.md },
-  timelineDotCol: { alignItems: 'center' },
-  timelineDot: { width: 12, height: 12, borderRadius: 6 },
-  timelineLine: { width: 2, flex: 1, minHeight: 28 },
-  timelineLineDashed: {
-    width: 0,
-    flex: 1,
-    minHeight: 28,
-    borderLeftWidth: 2,
-    borderLeftColor: Colors.borderStrong,
-    borderStyle: 'dashed',
+  hFlowRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  hFlowStepCol: { alignItems: 'center', width: 60 },
+  hFlowDot: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  timelineLabel: { fontSize: Font.small, fontFamily: FontFamily.semibold, color: Colors.text },
-  timelineDate: { fontSize: 12, fontFamily: FontFamily.regular, color: Colors.textMuted, marginTop: 1 },
-  timelineNote: { fontSize: Font.small, fontFamily: FontFamily.regular, color: Colors.textMuted, marginTop: 4 },
+  hFlowDotCurrent: { borderWidth: 2, borderColor: Colors.text },
+  hFlowLabel: {
+    fontSize: 11,
+    fontFamily: FontFamily.medium,
+    color: Colors.textMuted,
+    marginTop: 6,
+    textAlign: 'center',
+  },
+  hFlowLabelReached: { color: Colors.text, fontFamily: FontFamily.semibold },
+  hFlowLine: { flex: 1, height: 2, backgroundColor: Colors.border, marginTop: 13 },
+  hFlowNote: {
+    fontSize: Font.small,
+    fontFamily: FontFamily.regular,
+    color: Colors.textMuted,
+    marginTop: Spacing.md,
+  },
   closureQuote: {
     backgroundColor: Colors.background,
     borderRadius: Radius.md,
@@ -662,4 +834,78 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  menuBackdrop: { flex: 1, backgroundColor: '#00000066', justifyContent: 'flex-end' },
+  menuSheet: {
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: Radius.xl,
+    borderTopRightRadius: Radius.xl,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xxl,
+  },
+  menuRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: Spacing.md },
+  menuRowText: { fontSize: Font.body, fontFamily: FontFamily.medium, color: Colors.text },
+  menuDivider: { height: 1, backgroundColor: Colors.border },
+  editContainer: { flex: 1, backgroundColor: Colors.surface },
+  editHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.xxl,
+    paddingBottom: Spacing.lg,
+  },
+  editHeaderTitle: { fontSize: Font.subtitle, fontFamily: FontFamily.bold, color: Colors.text },
+  editBody: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
+  label: {
+    fontSize: Font.small,
+    fontFamily: FontFamily.labelBold,
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: Spacing.sm,
+  },
+  catRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.xl },
+  catChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.background,
+  },
+  catChipSel: { backgroundColor: Colors.primary },
+  catChipText: { fontFamily: FontFamily.labelSemibold, fontSize: Font.small, color: Colors.text },
+  editTitleInput: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
+    padding: Spacing.md,
+    fontSize: Font.bodyLg,
+    fontFamily: FontFamily.semibold,
+    color: Colors.text,
+    marginBottom: Spacing.md,
+  },
+  editDescriptionInput: {
+    minHeight: 100,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
+    padding: Spacing.md,
+    fontSize: Font.body,
+    fontFamily: FontFamily.regular,
+    color: Colors.text,
+    textAlignVertical: 'top',
+    marginBottom: Spacing.xl,
+  },
+  submitBtn: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 15,
+    borderRadius: Radius.md,
+    alignItems: 'center',
+  },
+  submitBtnText: { color: '#fff', fontFamily: FontFamily.bold, fontSize: Font.body },
 });

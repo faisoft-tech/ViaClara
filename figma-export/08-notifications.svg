@@ -1,0 +1,59 @@
+<svg width="390" height="844" viewBox="0 0 390 844" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect id="frame-bg" width="390" height="844" fill="#FAFAFC"/>
+
+  <g id="status-bar">
+    <text x="24" y="32" font-family="Poppins" font-size="15" font-weight="700" fill="#17194B">9:41</text>
+    <g id="status-icons" fill="#17194B">
+      <rect x="330" y="19" width="3" height="8" rx="1"/>
+      <rect x="335" y="16" width="3" height="11" rx="1"/>
+      <rect x="340" y="13" width="3" height="14" rx="1"/>
+      <path d="M350 15c3.5-3 8.5-3 12 0l-1.6 1.7c-2.6-2.2-6.2-2.2-8.8 0z"/>
+      <path d="M353 19c1.8-1.5 4.2-1.5 6 0l-3 2.4z"/>
+      <rect x="366" y="15" width="14" height="8" rx="2" stroke="#17194B" stroke-width="1.2" fill="none"/>
+      <rect x="368" y="17" width="9" height="4" rx="1"/>
+      <rect x="381" y="17.5" width="1.5" height="3" rx="0.75"/>
+    </g>
+  </g>
+
+  <g id="header">
+    <rect x="0" y="50" width="390" height="48" fill="#FAFAFC"/>
+    <path id="back-chevron" d="M28 66l-8 8 8 8" stroke="#3D69FE" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text id="header-title" x="195" y="79" text-anchor="middle" font-family="Poppins" font-size="17" font-weight="600" fill="#17194B">Notificaciones</text>
+    <g id="settings-icon" stroke="#3D69FE" stroke-width="2" stroke-linecap="round">
+      <line x1="352" y1="70" x2="368" y2="70"/>
+      <circle cx="360" cy="70" r="2.6" fill="#FAFAFC"/>
+      <line x1="352" y1="78" x2="368" y2="78"/>
+      <circle cx="356" cy="78" r="2.6" fill="#FAFAFC"/>
+    </g>
+  </g>
+
+  <g id="content">
+    <text id="mark-all" x="374" y="124" text-anchor="end" font-family="Poppins" font-size="12" font-weight="500" fill="#3D69FE">Marcar todas como leídas</text>
+
+    <g id="notif-confirm-inc-003">
+      <rect x="16" y="140" width="358" height="76" rx="16" fill="#E7EDFF" stroke="#E7EDFF" stroke-width="1"/>
+      <g id="icon-003">
+        <circle cx="46" cy="178" r="18" fill="#FFFFFF"/>
+        <circle cx="46" cy="178" r="8" stroke="#3D69FE" stroke-width="1.8" fill="none"/>
+        <text x="46" y="182.5" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="700" fill="#3D69FE">?</text>
+      </g>
+      <text x="76" y="170" font-family="Poppins" font-size="14" font-weight="500" fill="#17194B">¿Se solucionó "Contenedor desbordado en</text>
+      <text x="76" y="188" font-family="Poppins" font-size="14" font-weight="500" fill="#17194B">la Plaza Mayor"? Confirma si desapareció.</text>
+      <text x="76" y="204" font-family="Poppins" font-size="12" font-weight="400" fill="#7D7E88">hace 5 días</text>
+      <circle id="dot-003" cx="358" cy="178" r="4" fill="#F24545"/>
+    </g>
+
+    <g id="notif-confirm-inc-007">
+      <rect x="16" y="224" width="358" height="76" rx="16" fill="#E7EDFF" stroke="#E7EDFF" stroke-width="1"/>
+      <g id="icon-007">
+        <circle cx="46" cy="262" r="18" fill="#FFFFFF"/>
+        <circle cx="46" cy="262" r="8" stroke="#3D69FE" stroke-width="1.8" fill="none"/>
+        <text x="46" y="266.5" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="700" fill="#3D69FE">?</text>
+      </g>
+      <text x="76" y="254" font-family="Poppins" font-size="14" font-weight="500" fill="#17194B">¿Se solucionó "Papelera volcada en el</text>
+      <text x="76" y="272" font-family="Poppins" font-size="14" font-weight="500" fill="#17194B">Paseo Marítimo"? Confirma si desapareció.</text>
+      <text x="76" y="288" font-family="Poppins" font-size="12" font-weight="400" fill="#7D7E88">hace 6 días</text>
+      <circle id="dot-007" cx="358" cy="262" r="4" fill="#F24545"/>
+    </g>
+  </g>
+</svg>

@@ -1,6 +1,4 @@
-// Data model per DOCUMENTO_VIACLARA.md §9.2 — English field names (target model),
-// unlike the mobile app prototype (src/data/incidencias.ts), which still uses
-// Spanish field names pending the future backend rename (RF-009).
+// Data model per DOCUMENTO_VIACLARA.md §9.2, as served by the API (apps/api).
 
 export type IncidentCategory =
   | 'lighting'
@@ -13,15 +11,6 @@ export type IncidentCategory =
 export type IncidentStatus = 'submitted' | 'open' | 'in_progress' | 'resolved' | 'declined';
 
 export type UserRole = 'citizen' | 'operator' | 'administrator';
-
-export type User = {
-  id: string;
-  name: string;
-  phone: string;
-  points: number;
-  municipality: string;
-  role: UserRole;
-};
 
 export type Comment = {
   id: string;
@@ -57,17 +46,23 @@ export type Location = {
 export type Incident = {
   id: string;
   title: string;
+  // ISO 8601 timestamp.
   date: string;
+  createdAt: number;
   location: Location;
-  images: string[];
   category: IncidentCategory;
   description: string;
   createdBy: string;
+  authorName: string;
   status: IncidentStatus;
-  comments: Comment[];
   likes: number;
-  watchers: string[];
+  watchersCount: number;
+  commentsCount: number;
+  // Only present once the incident detail has been loaded.
+  comments?: Comment[];
   history: HistoryEntry[];
+  // Public CloudFront URLs, at most 3.
+  photos: string[];
   resolution?: Resolution;
   verification?: Verification;
   municipalityId: string;

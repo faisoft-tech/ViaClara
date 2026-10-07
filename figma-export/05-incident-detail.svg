@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="912" viewBox="0 0 390 912" fill="none">
+  <defs>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0A2A33" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Frame background -->
+  <rect id="frame-bg" x="0" y="0" width="390" height="912" fill="#FAFAFC"/>
+
+  <!-- ============ HERO (blue) ============ -->
+  <g id="hero">
+    <rect x="0" y="0" width="390" height="150" fill="#3D69FE"/>
+
+    <!-- Status bar (white over blue) -->
+    <g id="status-bar">
+      <text x="24" y="33" font-family="Poppins" font-size="15" font-weight="700" fill="#FFFFFF">9:41</text>
+      <g stroke="#FFFFFF" stroke-width="1.6" fill="#FFFFFF">
+        <rect x="330" y="22" width="3" height="7" rx="1"/>
+        <rect x="335" y="19" width="3" height="10" rx="1"/>
+        <rect x="340" y="16" width="3" height="13" rx="1"/>
+        <path d="M350 24 a5 5 0 0 1 8 0" fill="none"/>
+        <path d="M352.5 27 a2 2 0 0 1 3 0" fill="none"/>
+        <rect x="363" y="18" width="18" height="10" rx="2.5" fill="none"/>
+        <rect x="365" y="20" width="12" height="6" rx="1"/>
+        <rect x="381.5" y="21" width="1.6" height="4" rx="0.8"/>
+      </g>
+    </g>
+
+    <!-- Back button -->
+    <path id="back" d="M27 47 l-8 8 l8 8" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+
+  <!-- Content sheet (rounded top, overlaps hero by 18) -->
+  <path id="content-sheet" d="M0 156 Q0 132 24 132 H366 Q390 132 390 156 V912 H0 Z" fill="#FAFAFC"/>
+
+  <!-- Category thumbnail badge (bulb, overlapping hero/sheet) -->
+  <g id="category-badge">
+    <rect x="20" y="126" width="44" height="44" rx="14" fill="#FFFFFF" filter="url(#cardShadow)"/>
+    <g id="icon-bulb" stroke="#F59F00" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M42 137 a8 8 0 0 1 5 14 c-1 1 -1.5 1.6 -1.6 3 h-6.8 c-.1 -1.4 -.6 -2 -1.6 -3 a8 8 0 0 1 5 -14 Z"/>
+      <path d="M39.6 156 h4.8"/>
+      <path d="M40.4 158.5 h3.2"/>
+    </g>
+  </g>
+
+  <!-- ============ CARD 1 : main report ============ -->
+  <g id="card-main">
+    <rect x="16" y="164" width="358" height="250" rx="16" fill="#FFFFFF" filter="url(#cardShadow)"/>
+
+    <!-- Title -->
+    <text font-family="Poppins" font-size="20" font-weight="800" fill="#17194B">
+      <tspan x="32" y="199">Farola fundida en el</tspan>
+      <tspan x="32" y="224">Paseo del Altillo</tspan>
+    </text>
+
+    <!-- Description -->
+    <text font-family="Poppins" font-size="14" font-weight="400" fill="#17194B">
+      <tspan x="32" y="250">La farola lleva tres noches apagada. La zona</tspan>
+      <tspan x="32" y="270">del paseo queda muy oscura y da inseguridad</tspan>
+      <tspan x="32" y="290">al pasear.</tspan>
+    </text>
+
+    <!-- Divider before meta -->
+    <line x1="32" y1="306" x2="358" y2="306" stroke="#EEEEEE" stroke-width="1"/>
+
+    <!-- Meta: location -->
+    <g id="meta-location">
+      <path d="M39 322 c0 3.5 -4 7 -4 7 s-4 -3.5 -4 -7 a4 4 0 0 1 8 0 Z" stroke="#7D7E88" stroke-width="1.4" fill="none"/>
+      <circle cx="35" cy="322" r="1.5" fill="#7D7E88"/>
+      <text x="44" y="326" font-family="Poppins" font-size="12" font-weight="400" fill="#7D7E88">Paseo del Altillo, junto al banco azul · Almuñécar</text>
+    </g>
+
+    <!-- Meta: author + status badge -->
+    <g id="meta-author">
+      <circle cx="35" cy="348" r="4" stroke="#7D7E88" stroke-width="1.4" fill="none"/>
+      <path d="M31 356 a4 3 0 0 1 8 0" stroke="#7D7E88" stroke-width="1.4" fill="none"/>
+      <text x="44" y="352" font-family="Poppins" font-size="12" font-weight="500" fill="#3D69FE">María J. · hace 2 días</text>
+    </g>
+
+    <!-- Status badge: En curso (warning) -->
+    <g id="status-badge">
+      <rect x="284" y="341" width="74" height="20" rx="10" fill="#F2A415"/>
+      <g stroke="#FFFFFF" stroke-width="1.4" fill="none" stroke-linecap="round">
+        <circle cx="294" cy="351" r="2.2"/>
+        <path d="M296 351 l4 3.5 -2 2 -4 -3.5"/>
+      </g>
+      <text x="303" y="355" font-family="Epilogue" font-size="12" font-weight="600" fill="#FFFFFF">En curso</text>
+    </g>
+
+    <!-- Stats row -->
+    <g id="stats-row">
+      <!-- like (filled, liked) -->
+      <path d="M36 379 c-2 -2.6 -6 -1.6 -6 1.4 c0 2.4 3.2 4.4 6 6.4 c2.8 -2 6 -4 6 -6.4 c0 -3 -4 -4 -6 -1.4 Z" fill="#F24545"/>
+      <text x="46" y="386" font-family="Epilogue" font-size="12" font-weight="500" fill="#F24545">23</text>
+
+      <!-- following (bell filled, primary) -->
+      <path d="M96 375 c-3 0 -5 2.4 -5 5.4 c0 3 -1 3.6 -2 4.6 h14 c-1 -1 -2 -1.6 -2 -4.6 c0 -3 -2 -5.4 -5 -5.4 Z" fill="#3D69FE"/>
+      <path d="M97 388 a2 2 0 0 0 4 0" fill="#3D69FE"/>
+      <text x="108" y="386" font-family="Epilogue" font-size="12" font-weight="500" fill="#3D69FE">Siguiendo</text>
+
+      <!-- comments -->
+      <path d="M182 375 h13 a2 2 0 0 1 2 2 v6 a2 2 0 0 1 -2 2 h-8 l-4 3 v-3 h-1 a2 2 0 0 1 -2 -2 v-6 a2 2 0 0 1 2 -2 Z" stroke="#7D7E88" stroke-width="1.4" fill="none"/>
+      <text x="202" y="386" font-family="Epilogue" font-size="12" font-weight="500" fill="#7D7E88">2</text>
+
+      <!-- share (right aligned) -->
+      <g id="share" stroke="#7D7E88" stroke-width="1.4" fill="none">
+        <circle cx="300" cy="378" r="2.6"/>
+        <circle cx="312" cy="373" r="2.6"/>
+        <circle cx="312" cy="383" r="2.6"/>
+        <path d="M302.4 377 l7.2 -3 M302.4 379.5 l7.2 3"/>
+      </g>
+      <text x="320" y="386" font-family="Epilogue" font-size="12" font-weight="500" fill="#7D7E88">Compartir</text>
+    </g>
+  </g>
+
+  <!-- ============ CARD 2 : tracking / workflow ============ -->
+  <g id="card-tracking">
+    <rect x="16" y="426" width="358" height="140" rx="16" fill="#FFFFFF" filter="url(#cardShadow)"/>
+    <text x="32" y="460" font-family="Poppins" font-size="16" font-weight="700" fill="#17194B">Seguimiento</text>
+
+    <!-- Flow lines -->
+    <line x1="92"  y1="490" x2="121" y2="490" stroke="#7D7E88" stroke-width="2"/>
+    <line x1="181" y1="490" x2="209" y2="490" stroke="#F24545" stroke-width="2"/>
+    <line x1="269" y1="490" x2="298" y2="490" stroke="#EEEEEE" stroke-width="2"/>
+
+    <!-- Step 1: Registrada (submitted, reached) -->
+    <g id="step-submitted">
+      <circle cx="62" cy="490" r="14" fill="#7D7E88"/>
+      <path d="M56 490 l4 4 7 -8" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="62" y="514" font-family="Epilogue" font-size="11" font-weight="600" fill="#17194B" text-anchor="middle">Registrada</text>
+    </g>
+
+    <!-- Step 2: Abierta (open, reached) -->
+    <g id="step-open">
+      <circle cx="151" cy="490" r="14" fill="#F24545"/>
+      <path d="M145 490 l4 4 7 -8" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="151" y="514" font-family="Epilogue" font-size="11" font-weight="600" fill="#17194B" text-anchor="middle">Abierta</text>
+    </g>
+
+    <!-- Step 3: En curso (in_progress, reached + current) -->
+    <g id="step-in-progress">
+      <circle cx="239" cy="490" r="14" fill="#F2A415" stroke="#17194B" stroke-width="2"/>
+      <path d="M233 490 l4 4 7 -8" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="239" y="514" font-family="Epilogue" font-size="11" font-weight="600" fill="#17194B" text-anchor="middle">En curso</text>
+    </g>
+
+    <!-- Step 4: Resuelta (resolved, not reached) -->
+    <g id="step-resolved">
+      <circle cx="328" cy="490" r="14" fill="#EEEEEE"/>
+      <text x="328" y="514" font-family="Epilogue" font-size="11" font-weight="500" fill="#7D7E88" text-anchor="middle">Resuelta</text>
+    </g>
+
+    <!-- Latest history note -->
+    <text x="32" y="542" font-family="Poppins" font-size="12" font-weight="400" fill="#7D7E88">Asignado a brigada de mantenimiento</text>
+  </g>
+
+  <!-- ============ CARD 3 : comments ============ -->
+  <g id="card-comments">
+    <rect x="16" y="578" width="358" height="256" rx="16" fill="#FFFFFF" filter="url(#cardShadow)"/>
+    <text x="32" y="612" font-family="Poppins" font-size="16" font-weight="700" fill="#17194B">Comentarios (2)</text>
+
+    <!-- Comment 1: Ayuntamiento (highlighted / council) -->
+    <g id="comment-council">
+      <rect x="32" y="624" width="326" height="106" rx="12" fill="#E7EDFF"/>
+      <rect x="32" y="624" width="3" height="106" fill="#3D69FE"/>
+      <!-- avatar (shield) -->
+      <circle cx="58" cy="650" r="14" fill="#3D69FE"/>
+      <path d="M58 643 l6 2 v4 c0 4 -3 6 -6 7 c-3 -1 -6 -3 -6 -7 v-4 Z" fill="#FFFFFF"/>
+      <path d="M55 650 l2 2 4 -4" stroke="#3D69FE" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="80" y="647" font-family="Poppins" font-size="12" font-weight="700" fill="#3D69FE">Ayuntamiento de Almuñécar</text>
+      <text x="80" y="661" font-family="Poppins" font-size="12" font-weight="400" fill="#7D7E88">· hace 20 horas</text>
+      <text font-family="Poppins" font-size="14" font-weight="400" fill="#17194B">
+        <tspan x="80" y="683">Aviso asignado a la brigada de</tspan>
+        <tspan x="80" y="702">mantenimiento. Lo revisamos esta semana.</tspan>
+      </text>
+      <!-- like -->
+      <path d="M86 714 c-2 -2.6 -6 -1.6 -6 1.4 c0 2.4 3.2 4.4 6 6.4 c2.8 -2 6 -4 6 -6.4 c0 -3 -4 -4 -6 -1.4 Z" stroke="#7D7E88" stroke-width="1.4" fill="none"/>
+      <text x="96" y="721" font-family="Epilogue" font-size="12" font-weight="500" fill="#7D7E88">5</text>
+    </g>
+
+    <!-- Comment 2: Pedro R. -->
+    <g id="comment-pedro">
+      <!-- avatar (initials) -->
+      <circle cx="46" cy="758" r="14" fill="#7A5AF8"/>
+      <text x="46" y="762" font-family="Poppins" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">PR</text>
+      <text x="68" y="755" font-family="Poppins" font-size="12" font-weight="700" fill="#3D69FE">Pedro R.</text>
+      <text x="113" y="755" font-family="Poppins" font-size="12" font-weight="400" fill="#7D7E88">· hace 1 día</text>
+      <text x="68" y="779" font-family="Poppins" font-size="14" font-weight="400" fill="#17194B">Confirmo, ayer pasé por allí y sigue apagada.</text>
+      <!-- like -->
+      <path d="M74 792 c-2 -2.6 -6 -1.6 -6 1.4 c0 2.4 3.2 4.4 6 6.4 c2.8 -2 6 -4 6 -6.4 c0 -3 -4 -4 -6 -1.4 Z" stroke="#7D7E88" stroke-width="1.4" fill="none"/>
+      <text x="84" y="799" font-family="Epilogue" font-size="12" font-weight="500" fill="#7D7E88">3</text>
+    </g>
+  </g>
+
+  <!-- ============ Comment input bar (bottom) ============ -->
+  <g id="input-bar">
+    <rect x="0" y="846" width="390" height="66" fill="#FFFFFF"/>
+    <line x1="0" y1="846" x2="390" y2="846" stroke="#EEEEEE" stroke-width="1"/>
+    <rect x="12" y="861" width="318" height="40" rx="20" fill="#FAFAFC" stroke="#EEEEEE" stroke-width="1"/>
+    <text x="28" y="886" font-family="Poppins" font-size="14" font-weight="400" fill="#7D7E88">Escribe un comentario…</text>
+    <circle cx="354" cy="881" r="24" fill="#3D69FE"/>
+    <path d="M345 881 l18 -7 -7 7 7 7 Z" fill="#FFFFFF"/>
+    <path d="M345 881 h11" stroke="#3D69FE" stroke-width="1.6"/>
+  </g>
+</svg>
